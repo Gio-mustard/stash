@@ -48,15 +48,29 @@ export default function GuardaditoCard({ guardadito }: GuardaditoCardProps) {
           hover:shadow-[var(--shadow-glow)]
         "
       >
+        {/* Cover image background */}
+        {guardadito.coverUrl && (
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 z-0"
+              style={{
+                backgroundImage: `url(${guardadito.coverUrl})`,
+                backgroundSize: "cover",
+                backgroundPosition: guardadito.coverPosition,
+                opacity: guardadito.coverOpacity,
+              }}
+            />  
+        )}
+
         <div
           aria-hidden="true"
           style={{ color: theme.iconColor }}
-          className="absolute top-4 right-4 opacity-85 transition-transform duration-200"
+          className="absolute top-4 right-4 opacity-85 transition-transform duration-200 z-20"
         >
           <TranslateIcon iconKey={guardadito.icon} size={24} className="text-current" />
         </div>
- 
-        <div className="flex flex-col gap-1 mt-6">
+
+        <div className="relative z-20 flex flex-col gap-1 mt-6">
           <p className="font-[var(--font-data)] text-[11px] font-semibold tracking-[0.12em] uppercase text-on-muted">
             {guardadito.name}
           </p>
@@ -80,6 +94,9 @@ export default function GuardaditoCard({ guardadito }: GuardaditoCardProps) {
           ) : (
             <div className="mt-2 w-full h-[3px] bg-black/5 dark:bg-white/5 rounded-full" aria-hidden="true" />
           )}
+        </div>
+        <div className="absolute w-full h-20 bg-surface-1 left-0 -bottom-4 blur-md scale-200 opacity-80 z-0">
+
         </div>
       </article>
     </Link>

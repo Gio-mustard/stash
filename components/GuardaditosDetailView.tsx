@@ -21,6 +21,9 @@ type GuardaditosDetailViewProps = {
     notes: string;
     link: string;
     themeIndex: number;
+    coverUrl: string | null;
+    coverPosition: string;
+    coverOpacity: number;
   };
   transactions: {
     id: string;
@@ -60,6 +63,18 @@ const THEMES = [
   },
 ] as const;
 
+const POSITION_OPTIONS = [
+  { label: "↖", value: "top left" },
+  { label: "↑", value: "top center" },
+  { label: "↗", value: "top right" },
+  { label: "←", value: "center left" },
+  { label: "✦", value: "center" },
+  { label: "→", value: "center right" },
+  { label: "↙", value: "bottom left" },
+  { label: "↓", value: "bottom center" },
+  { label: "↘", value: "bottom right" },
+];
+
 /**
  * GuardaditosDetailView renders detail info for a specific savings goal.
  * Features an SVG sparkline, notes editor, and Vaul Drawers for quick deposit/withdrawals.
@@ -85,6 +100,14 @@ export default function GuardaditosDetailView({
   const [isSaved, setIsSaved] = useState(false);
   const [depositError, setDepositError] = useState<string | null>(null);
   const [withdrawError, setWithdrawError] = useState<string | null>(null);
+
+  // Cover image states
+  const [coverUrl, setCoverUrl] = useState<string | null>(guardadito.coverUrl);
+  const [coverPosition, setCoverPosition] = useState<string>(guardadito.coverPosition);
+  const [coverOpacity, setCoverOpacity] = useState<number>(guardadito.coverOpacity);
+  const [coverUploading, setCoverUploading] = useState(false);
+  const [coverError, setCoverError] = useState<string | null>(null);
+  const coverInputRef = React.useRef<HTMLInputElement>(null);
 
   // Drawer open states
   const [isDepositOpen, setIsDepositOpen] = useState(false);
@@ -182,6 +205,63 @@ export default function GuardaditosDetailView({
     });
   };
 
+  /**
+   * Handles uploading a new cover file
+   */
+  const handleCoverFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setCoverUploading(true);
+    setCoverError(null);
+
+    const formData = new FormData();
+    formData.append("cover_file", file);
+
+    try {
+      const { uploadGuardaditoCover } = await import("@/app/actions_extended");
+      const res = await uploadGuardaditoCover(guardadito.id, formData);
+      setCoverUrl(res.coverUrl);
+    } catch (err: any) {
+      setCoverError(err.message || "Error al subir la imagen.");
+    } finally {
+      setCoverUploading(false);
+    }
+  };
+
+  /**
+   * Saves cover position and opacity settings
+   */
+  const handleSaveCoverSettings = async (position: string, opacity: number) => {
+    try {
+      const { updateGuardaditoCoverSettings } = await import("@/app/actions_extended");
+      await updateGuardaditoCoverSettings(guardadito.id, position, opacity);
+    } catch (err: any) {
+      setCoverError(err.message || "Error al guardar los ajustes.");
+    }
+  };
+
+  /**
+   * Removes the cover image completely
+   */
+  const handleRemoveCover = async () => {
+    if (!confirm("¿Seguro que deseas eliminar la imagen de portada?")) return;
+
+    setCoverUploading(true);
+    setCoverError(null);
+
+    try {
+      const { removeGuardaditoCover } = await import("@/app/actions_extended");
+      await removeGuardaditoCover(guardadito.id);
+      setCoverUrl(null);
+      if (coverInputRef.current) coverInputRef.current.value = "";
+    } catch (err: any) {
+      setCoverError(err.message || "Error al eliminar la portada.");
+    } finally {
+      setCoverUploading(false);
+    }
+  };
+
   // Reconstruct historical progression values
   let runningSavingsVal = guardadito.current;
   const historyDataPoints = [];
@@ -257,20 +337,40 @@ export default function GuardaditosDetailView({
             style={{ background: theme.gradient, boxShadow: `0 0 30px ${theme.glowColor}` }}
             className="pinstripe relative overflow-hidden rounded-2xl p-6 border border-border flex flex-col gap-6"
           >
+            {/* Background cover image */}
+            {coverUrl && (
+              <>
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 z-0 transition-opacity duration-500"
+                  style={{
+                    backgroundImage: `url(${coverUrl})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: coverPosition,
+                    opacity: coverOpacity,
+                  }}
+                />
+                {/* Dark gradient overlay so text stays readable in all light/dark conditions */}
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 z-0 bg-gradient-to-t from-black/60 via-black/35 to-black/10 dark:from-black/75 dark:via-black/45 dark:to-black/20"
+                />
+              </>
+            )}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 z-10">
               <div className="flex flex-col">
-                <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] text-on-muted uppercase">
+                <span className={`font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase ${coverUrl ? 'text-white/70' : 'text-on-muted'}`}>
                   Ahorrado actualmente
                 </span>
-                <span className="text-4xl font-extrabold text-on-surface tracking-tight mt-1">
+                <span className={`text-4xl font-extrabold tracking-tight mt-1 ${coverUrl ? 'text-white' : 'text-on-surface'}`}>
                   ${Number(guardadito.current).toLocaleString("en-US", { minimumFractionDigits: 2 })}
                 </span>
               </div>
               <div className="flex flex-col md:items-end">
-                <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] text-on-muted uppercase">
+                <span className={`font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase ${coverUrl ? 'text-white/70' : 'text-on-muted'}`}>
                   Meta de ahorro
                 </span>
-                <span className="text-xl font-semibold text-on-surface mt-1">
+                <span className={`text-xl font-semibold mt-1 ${coverUrl ? 'text-white' : 'text-on-surface'}`}>
                   {guardadito.target !== null
                     ? `$${Number(guardadito.target).toLocaleString("en-US", { minimumFractionDigits: 2 })}`
                     : "Sin meta"}
@@ -280,7 +380,7 @@ export default function GuardaditosDetailView({
 
             {guardadito.target !== null ? (
               <div className="flex flex-col gap-2 z-10">
-                <div className="flex justify-between text-xs text-on-dim font-[var(--font-data)]">
+                <div className={`flex justify-between text-xs font-[var(--font-data)] ${coverUrl ? 'text-white/80' : 'text-on-dim'}`}>
                   <span>{progressPercent.toFixed(1)}% completado</span>
                   <span>Restan: ${Math.max(0, guardadito.target - guardadito.current).toLocaleString("en-US")}</span>
                 </div>
@@ -523,6 +623,145 @@ export default function GuardaditosDetailView({
                 >
                   Depositar
                 </button>
+              </section>
+
+              {/* Cover Image Editor */}
+              <section className="bg-surface-2 border border-border rounded-2xl p-6 flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-semibold tracking-tight text-on-surface">
+                    Imagen de Portada
+                  </h2>
+                  {coverUrl && (
+                    <button
+                      type="button"
+                      onClick={handleRemoveCover}
+                      disabled={coverUploading}
+                      className="text-[10px] font-bold tracking-widest text-error-text opacity-60 hover:opacity-100 transition-opacity uppercase disabled:opacity-30"
+                    >
+                      Eliminar
+                    </button>
+                  )}
+                </div>
+
+                {/* Hidden file input */}
+                <input
+                  ref={coverInputRef}
+                  id="cover-image-input"
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  onChange={handleCoverFileChange}
+                />
+
+                {/* Preview / Upload trigger */}
+                <button
+                  type="button"
+                  onClick={() => coverInputRef.current?.click()}
+                  disabled={coverUploading}
+                  className="relative w-full overflow-hidden rounded-xl border-2 border-dashed border-border hover:border-primary/50 transition-colors group"
+                  style={{ aspectRatio: "16 / 7" }}
+                  aria-label="Subir imagen de portada"
+                >
+                  {coverUrl ? (
+                    <>
+                      <div
+                        className="absolute inset-0"
+                        style={{
+                          backgroundImage: `url(${coverUrl})`,
+                          backgroundSize: "cover",
+                          backgroundPosition: coverPosition,
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span className="text-[11px] font-bold tracking-widest text-white uppercase">
+                          {coverUploading ? "Subiendo…" : "Cambiar imagen"}
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-on-dim group-hover:text-on-surface transition-colors">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="3" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
+                      </svg>
+                      <span className="text-[11px] font-semibold tracking-wide">
+                        {coverUploading ? "Subiendo…" : "Agregar imagen"}
+                      </span>
+                    </div>
+                  )}
+                  {coverUploading && (
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                      <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                    </div>
+                  )}
+                </button>
+
+                {coverError && (
+                  <p className="text-[10px] text-error-text">{coverError}</p>
+                )}
+
+                {/* Position + Opacity (only shown when image exists) */}
+                {coverUrl && (
+                  <>
+                    <div className="flex flex-col gap-2">
+                      <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
+                        Posición
+                      </span>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {POSITION_OPTIONS.map(({ label, value }) => (
+                          <button
+                            key={value}
+                            type="button"
+                            onClick={() => {
+                              setCoverPosition(value);
+                              handleSaveCoverSettings(value, coverOpacity);
+                            }}
+                            className={`h-9 rounded-lg border text-sm font-semibold transition-all duration-150 ${
+                              coverPosition === value
+                                ? "bg-primary/15 border-primary text-primary"
+                                : "bg-surface-3 border-border text-on-dim hover:border-white/15 hover:text-on-surface"
+                            }`}
+                            aria-label={value}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
+                          Opacidad
+                        </span>
+                        <span className="font-[var(--font-data)] text-[10px] font-bold text-on-dim tabular-nums">
+                          {Math.round(coverOpacity * 100)}%
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="80"
+                        step="5"
+                        value={Math.round(coverOpacity * 100)}
+                        onChange={(e) => {
+                          const newOpacity = Number(e.target.value) / 100;
+                          setCoverOpacity(newOpacity);
+                        }}
+                        onMouseUp={(e) => {
+                          const newOpacity = Number((e.target as HTMLInputElement).value) / 100;
+                          handleSaveCoverSettings(coverPosition, newOpacity);
+                        }}
+                        onTouchEnd={(e) => {
+                          const newOpacity = Number((e.target as HTMLInputElement).value) / 100;
+                          handleSaveCoverSettings(coverPosition, newOpacity);
+                        }}
+                        className="w-full h-1.5 rounded-full appearance-none bg-surface-3 accent-primary cursor-pointer"
+                      />
+                    </div>
+                  </>
+                )}
               </section>
 
               {/* Notes & Links Form */}

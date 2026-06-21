@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase";
 
+const COVER_BUCKET = "guardadito-covers";
+
 /**
  * Server action to update user profile information.
  *
@@ -145,6 +147,7 @@ export async function createGuardadito(formData: FormData) {
   const icon = (formData.get("icon") as string) || "piggybank";
   const targetStr = formData.get("target") as string | null;
   const initialStr = formData.get("initialAmount") as string | null;
+  const coverFile = formData.get("cover_file") as File | null;
 
   if (!name) {
     throw new Error("El nombre del guardadito es requerido");
@@ -254,8 +257,33 @@ export async function createGuardadito(formData: FormData) {
     }
   }
 
+  // Optionally upload cover image
+  if (coverFile && coverFile.size > 0) {
+    try {
+      const fileExt = coverFile.name.split(".").pop() || "jpg";
+      const filePath = `${user.id}/${newGuardadito.id}/cover.${fileExt}`;
+      const fileBuffer = Buffer.from(await coverFile.arrayBuffer());
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from(COVER_BUCKET)
+        .upload(filePath, fileBuffer, { contentType: coverFile.type, upsert: true });
+
+      if (!uploadError && uploadData) {
+        const { data: { publicUrl } } = supabase.storage.from(COVER_BUCKET).getPublicUrl(uploadData.path);
+        await supabase
+          .from("guardaditos")
+          .update({ cover_url: `${publicUrl}?t=${Date.now()}` })
+          .eq("id", newGuardadito.id)
+          .eq("user_id", user.id);
+      }
+    } catch {
+      // Non-fatal: guardadito was created, cover image failed silently
+    }
+  }
+
   revalidatePath("/");
 }
+
 
 /**
  * Server action to persist a new user-defined transaction category.
@@ -334,4 +362,134 @@ export async function uploadAvatar(formData: FormData) {
 
   revalidatePath("/");
   revalidatePath("/profile");
+}
+
+/**
+ * Server action to upload (or replace) a cover image for a specific guardadito.
+ * Uploads to the `guardadito-covers` Supabase Storage bucket and persists the
+ * public URL in the `cover_url` column.
+ *
+ * @param guardaditoId - The savings goal to attach the cover to.
+ * @param formData     - Expects a "cover_file" File field.
+ */
+export async function uploadGuardaditoCover(guardaditoId: string, formData: FormData) {
+  const coverFile = formData.get("cover_file") as File | null;
+
+  if (!coverFile || coverFile.size === 0) {
+    throw new Error("No se proporcionó ninguna imagen");
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Unauthenticated");
+  }
+
+  // Verify the guardadito belongs to the user
+  const { data: goal } = await supabase
+    .from("guardaditos")
+    .select("id")
+    .eq("id", guardaditoId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (!goal) {
+    throw new Error("Guardadito no encontrado");
+  }
+
+  const fileExt = coverFile.name.split(".").pop() || "jpg";
+  const filePath = `${user.id}/${guardaditoId}/cover.${fileExt}`;
+  const fileBuffer = Buffer.from(await coverFile.arrayBuffer());
+
+  const { data: uploadData, error: uploadError } = await supabase.storage
+    .from(COVER_BUCKET)
+    .upload(filePath, fileBuffer, { contentType: coverFile.type, upsert: true });
+
+  if (uploadError || !uploadData) {
+    throw new Error(uploadError?.message || "Error al subir la imagen");
+  }
+
+  const { data: { publicUrl } } = supabase.storage.from(COVER_BUCKET).getPublicUrl(uploadData.path);
+
+  // Append cache-busting timestamp so the browser reloads the updated image
+  const coverUrl = `${publicUrl}?t=${Date.now()}`;
+
+  const { error: updateError } = await supabase
+    .from("guardaditos")
+    .update({ cover_url: coverUrl })
+    .eq("id", guardaditoId)
+    .eq("user_id", user.id);
+
+  if (updateError) {
+    throw new Error(updateError.message);
+  }
+
+  revalidatePath("/");
+  revalidatePath(`/guardaditos/${guardaditoId}`);
+
+  return { coverUrl };
+}
+
+/**
+ * Server action to update the display settings (position and opacity) of a
+ * guardadito cover image.
+ *
+ * @param guardaditoId - The savings goal unique identifier.
+ * @param position     - CSS object-position value, e.g. "center", "top left".
+ * @param opacity      - Decimal opacity between 0 and 1.
+ */
+export async function updateGuardaditoCoverSettings(
+  guardaditoId: string,
+  position: string,
+  opacity: number
+) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Unauthenticated");
+  }
+
+  const clampedOpacity = Math.min(1, Math.max(0, opacity));
+
+  const { error } = await supabase
+    .from("guardaditos")
+    .update({ cover_position: position, cover_opacity: clampedOpacity })
+    .eq("id", guardaditoId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/");
+  revalidatePath(`/guardaditos/${guardaditoId}`);
+}
+
+/**
+ * Server action to remove the cover image from a guardadito (sets cover_url to null).
+ *
+ * @param guardaditoId - The savings goal unique identifier.
+ */
+export async function removeGuardaditoCover(guardaditoId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Unauthenticated");
+  }
+
+  const { error } = await supabase
+    .from("guardaditos")
+    .update({ cover_url: null })
+    .eq("id", guardaditoId)
+    .eq("user_id", user.id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/");
+  revalidatePath(`/guardaditos/${guardaditoId}`);
 }

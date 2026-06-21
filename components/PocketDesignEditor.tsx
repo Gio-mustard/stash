@@ -225,11 +225,11 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
   return (
     <div className="w-full max-w-5xl mx-auto flex flex-col lg:flex-row gap-8 items-start pb-12">
       {/* Left Column: Preview */}
-      <div className="w-full lg:w-5/12 flex flex-col gap-6 lg:sticky lg:top-24">
+      <div className="w-full lg:w-5/12 flex flex-col gap-6 lg:sticky lg:top-24 pt-36 relative">
         <h2 className="text-sm font-semibold tracking-[0.15em] uppercase text-on-dim font-[var(--font-data)]">
           Vista Previa en Tiempo Real
         </h2>
-        <div className="w-full max-w-sm mx-auto lg:mx-0">
+        <div className="w-full max-w-sm mx-auto lg:mx-0 fixed  scale-90 z-50 top-18 left-0 lg:relative lg:top-0 lg:scale-100">
           <PocketCard pocket={previewPocket} isInteractive={false} />
         </div>
 
@@ -809,7 +809,7 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
         <button
           type="submit"
           disabled={isPending}
-          className="h-12 w-full mt-4 rounded-xl bg-primary-ctr text-on-primary font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase shadow-[var(--shadow-fab)] transition-all hover:-translate-y-0.5 hover:bg-primary-mid active:translate-y-0 disabled:opacity-50"
+          className="px-6 h-12 w-full mt-4 rounded-xl bg-primary-ctr text-on-primary font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase shadow-[var(--shadow-fab)] transition-all hover:-translate-y-0.5 hover:bg-primary-mid active:translate-y-0 disabled:opacity-50"
         >
           {isPending
             ? "Procesando..."

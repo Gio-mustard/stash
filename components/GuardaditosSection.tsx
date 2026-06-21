@@ -16,6 +16,10 @@ export type GuardaditoData = {
   target: number | null;
   formattedAmount: string;
   themeIndex: number;
+  coverUrl: string | null;
+  coverPosition: string;
+  coverOpacity: number;
+
 };
 
 type GuardaditosSectionProps = {

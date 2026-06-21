@@ -26,7 +26,7 @@ export default async function GuardaditoPage({ params }: GuardaditoPageProps) {
   // Guardadito existence check must happen before streaming starts to allow redirect
   const { data: dbGuardadito, error: gError } = await supabase
     .from("guardaditos")
-    .select("id, name, icon, current, target, theme_index, notes, link")
+    .select("id, name, icon, current, target, theme_index, notes, link, cover_url, cover_position, cover_opacity")
     .eq("id", id)
     .eq("user_id", user.id)
     .single();
@@ -44,6 +44,9 @@ export default async function GuardaditoPage({ params }: GuardaditoPageProps) {
     notes: dbGuardadito.notes || "",
     link: dbGuardadito.link || "",
     themeIndex: dbGuardadito.theme_index,
+    coverUrl: dbGuardadito.cover_url || null,
+    coverPosition: dbGuardadito.cover_position || "center",
+    coverOpacity: dbGuardadito.cover_opacity != null ? Number(dbGuardadito.cover_opacity) : 0.35,
   };
 
   // ── Parallel data fetching for remaining independent queries ───────────────

@@ -39,7 +39,7 @@ export default async function DashboardPage() {
       .maybeSingle(),
     supabase
       .from("guardaditos")
-      .select("id, name, icon, current, target, theme_index")
+      .select("id, name, icon, current, target, theme_index, cover_url, cover_position, cover_opacity")
       .eq("user_id", user.id)
       .order("theme_index", { ascending: true }),
     supabase
@@ -75,6 +75,9 @@ export default async function DashboardPage() {
       maximumFractionDigits: 0,
     })}`,
     themeIndex: row.theme_index,
+    coverUrl: row.cover_url || null,
+    coverPosition: row.cover_position || "center",
+    coverOpacity: row.cover_opacity !== null && row.cover_opacity !== undefined ? Number(row.cover_opacity) : 0.35,
   }));
 
   const pockets = (dbPockets || []).map((row) => ({

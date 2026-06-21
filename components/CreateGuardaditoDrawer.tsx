@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition } from "react";
+import React, { useState, useTransition, useRef } from "react";
 import { Drawer } from "vaul";
 import TranslateIcon from "./translateIcon";
 import { createGuardadito } from "@/app/actions_extended";
@@ -39,12 +39,17 @@ export default function CreateGuardaditoDrawer({
   const [selectedIcon, setSelectedIcon] = useState<string>("piggybank");
   const [hasTarget, setHasTarget] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       setSelectedIcon("piggybank");
       setHasTarget(true);
       setError(null);
+      setCoverFile(null);
+      setCoverPreview(null);
     }
     onOpenChange(open);
   };
@@ -54,6 +59,9 @@ export default function CreateGuardaditoDrawer({
     setError(null);
     const formData = new FormData(e.currentTarget);
     formData.set("icon", selectedIcon);
+    if (coverFile) {
+      formData.set("cover_file", coverFile);
+    }
 
     const initialAmountStr = formData.get("initialAmount") as string | null;
     const initialAmount = initialAmountStr && initialAmountStr !== "" ? parseFloat(initialAmountStr) : 0;
@@ -191,6 +199,71 @@ export default function CreateGuardaditoDrawer({
                   placeholder="0.00"
                   className="h-11 w-full rounded-xl bg-surface-2 border border-border px-4 text-sm text-on-surface focus:outline-none focus:border-primary transition-all"
                 />
+              </div>
+
+              {/* Optional Cover Image */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
+                    Imagen de portada (opcional)
+                  </span>
+                  {coverPreview && (
+                    <button
+                      type="button"
+                      onClick={() => { setCoverFile(null); setCoverPreview(null); if (coverInputRef.current) coverInputRef.current.value = ""; }}
+                      className="text-[10px] text-error-text opacity-60 hover:opacity-100 transition-opacity font-bold uppercase tracking-widest"
+                    >
+                      Quitar
+                    </button>
+                  )}
+                </div>
+
+                <input
+                  ref={coverInputRef}
+                  id="drawer-cover-image-input"
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    setCoverFile(file);
+                    setCoverPreview(URL.createObjectURL(file));
+                  }}
+                />
+
+                <button
+                  type="button"
+                  onClick={() => coverInputRef.current?.click()}
+                  className="relative w-full overflow-hidden rounded-xl border-2 border-dashed border-border hover:border-primary/50 transition-colors group"
+                  style={{ aspectRatio: "16 / 7" }}
+                  aria-label="Seleccionar imagen de portada"
+                >
+                  {coverPreview ? (
+                    <>
+                      <div
+                        className="absolute inset-0"
+                        style={{
+                          backgroundImage: `url(${coverPreview})`,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <span className="text-[11px] font-bold tracking-widest text-white uppercase">Cambiar</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-on-dim group-hover:text-on-surface transition-colors">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="3" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
+                      </svg>
+                      <span className="text-[11px] font-semibold tracking-wide">Agregar imagen</span>
+                    </div>
+                  )}
+                </button>
               </div>
 
               <button
