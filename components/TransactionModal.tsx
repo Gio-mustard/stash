@@ -190,9 +190,9 @@ export default function TransactionModal({
         <Drawer.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 animate-in fade-in duration-200 bottom-0 right-0" />
         <Drawer.Content className="
           fixed z-50 bg-[var(--color-surface-3)] text-[var(--color-on-surface)] focus:outline-none
-          bottom-0 left-0 right-0 h-[90vh] rounded-t-2xl border-t border-white/5 flex flex-col
+          bottom-0 left-0 right-0 h-[95vh] rounded-t-2xl border-t border-white/5 flex flex-col
           sm:top-0 sm:right-0 sm:left-auto sm:bottom-0 sm:w-[420px] sm:h-full sm:rounded-l-2xl sm:rounded-tr-none sm:border-l sm:border-t-0
-          ml-2 rounded-r-none
+          rounded-r-none
         ">
           {/* Top drag handle for bottom drawer */}
           <div className="w-12 h-1.5 flex-shrink-0 rounded-full bg-white/10 mt-3 mb-1 sm:hidden self-center" />
@@ -493,7 +493,7 @@ export default function TransactionModal({
               </div>
             )}
 
-            <div className="px-6 mt-auto pt-4 pb-[env(safe-area-inset-bottom,8px)]">
+            <div className="px-6 mt-4 pb-2 absolute bottom-2 self-center">
               <button
                 type="submit"
                 disabled={isPending}

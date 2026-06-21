@@ -26,15 +26,6 @@ export const metadata: Metadata = {
     "Track your balance, savings goals, and recent transactions with Stash, your personal finance dashboard.",
 };
 
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  viewportFit: "cover",
-  // Prevents iOS from resizing the layout viewport when the keyboard appears.
-  // Without this, fixed/dvh elements shift up when an input is focused on iOS.
-  interactiveWidget: "resizes-visual",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
