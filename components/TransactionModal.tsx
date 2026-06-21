@@ -262,7 +262,7 @@ export default function TransactionModal({
                   }}
                   disabled={isPending}
                   placeholder="0"
-                  className="font-[var(--font-data)] text-[46px] font-bold tracking-tight text-[var(--color-on-surface)] bg-transparent border-none outline-none w-56 text-center placeholder:text-white/20"
+                  className="font-[var(--font-data)] text-6xl tracking-tight text-[var(--color-on-surface)] bg-transparent border-none outline-none w-56 text-center placeholder:text-white/20"
                 />
               </div>
               {txType === "EXPENSE" && (() => {
