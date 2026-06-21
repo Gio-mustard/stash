@@ -80,198 +80,191 @@ export default function ProfileView({
     startTransition(async () => { await uploadAvatar(formData); });
   };
   return (
-    <div className="flex flex-col gap-5 w-full max-w-md">
+    <>
+      <div className="w-full max-w-5xl mx-auto flex flex-col gap-5">
 
-      {/* Hero Card */}
-      <section className="bg-surface-2 border border-border rounded-2xl overflow-hidden">
-        <div
-          className="h-20 w-full"
-          style={{ background: "linear-gradient(135deg, #0a0a0a 0%, rgba(10,77,46,0.3) 100%)" }}
-          aria-hidden="true"
-        />
-        <div className="px-6 pb-6 -mt-9 flex flex-col gap-4">
-          <div className="flex items-end justify-between">
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                aria-label="Cambiar foto de perfil"
-                className="relative group"
-              >
-                {localAvatar ? (
-                  <div className="size-[72px] rounded-2xl overflow-hidden border-2 border-primary ring-2 ring-[var(--color-bg)]">
-                    <Image
-                      src={localAvatar}
-                      alt="Avatar"
-                      width={72}
-                      height={72}
-                      className="object-cover w-full h-full"
+        {/* Desktop two-column grid / Mobile single column */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+
+          {/* LEFT COLUMN: Hero card + Edit username */}
+          <div className="lg:col-span-1 flex flex-col gap-5 lg:sticky lg:top-6">
+
+            {/* Hero Card */}
+            <section className="bg-surface-2 border border-border rounded-2xl overflow-hidden">
+              <div
+                className="h-20 w-full"
+                style={{ background: "linear-gradient(135deg, #0a0a0a 0%, rgba(10,77,46,0.3) 100%)" }}
+                aria-hidden="true"
+              />
+              <div className="px-6 pb-6 -mt-9 flex flex-col gap-4">
+                <div className="flex items-end justify-between">
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      aria-label="Cambiar foto de perfil"
+                      className="relative group"
+                    >
+                      {localAvatar ? (
+                        <div className="size-[72px] rounded-2xl overflow-hidden border-2 border-primary ring-2 ring-[var(--color-bg)]">
+                          <Image
+                            src={localAvatar}
+                            alt="Avatar"
+                            width={72}
+                            height={72}
+                            className="object-cover w-full h-full"
+                          />
+                        </div>
+                      ) : (
+                        <div className="size-[72px] rounded-2xl bg-primary-ctr border-2 border-primary ring-2 ring-[var(--color-bg)] flex items-center justify-center">
+                          <span className="font-[var(--font-data)] text-2xl font-bold text-primary">
+                            {initial}
+                          </span>
+                        </div>
+                      )}
+                      <div className="absolute -bottom-1.5 -right-1.5 size-6 rounded-full bg-primary-ctr border-2 border-[var(--color-bg)] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <TranslateIcon iconKey="camera" size={11} className="text-on-primary" />
+                      </div>
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleAvatarChange}
                     />
                   </div>
-                ) : (
-                  <div className="size-[72px] rounded-2xl bg-primary-ctr border-2 border-primary ring-2 ring-[var(--color-bg)] flex items-center justify-center">
-                    <span className="font-[var(--font-data)] text-2xl font-bold text-primary">
-                      {initial}
-                    </span>
-                  </div>
-                )}
-                <div className="absolute -bottom-1.5 -right-1.5 size-6 rounded-full bg-primary-ctr border-2 border-[var(--color-bg)] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <TranslateIcon iconKey="camera" size={11} className="text-on-primary" />
                 </div>
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleAvatarChange}
-              />
-            </div>
-          </div>
 
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-on-surface">
-              {initialUsername}
-            </h1>
-            <p className="text-xs text-on-dim mt-0.5">{email}</p>
-          </div>
+                <div>
+                  <h1 className="text-xl font-bold tracking-tight text-on-surface">
+                    {initialUsername}
+                  </h1>
+                  <p className="text-xs text-on-dim mt-0.5">{email}</p>
+                </div>
 
-          <div className="flex flex-col gap-0.5">
-            <p className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.12em] uppercase text-on-dim">
-              Saldo Total
-            </p>
-            <p className="font-[var(--font-data)] text-[28px] font-bold tracking-tight text-primary">
-              {balance}
-            </p>
-          </div>
+                <div className="flex flex-col gap-0.5">
+                  <p className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.12em] uppercase text-on-dim">
+                    Saldo Total
+                  </p>
+                  <p className="font-[var(--font-data)] text-[28px] font-bold tracking-tight text-primary">
+                    {balance}
+                  </p>
+                </div>
 
-          <div className="flex gap-2 flex-wrap">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-3 border border-border relative overflow-hidden opacity-50">
-              <TranslateIcon iconKey="wallet" size={12} className="text-on-dim" />
-              <span className="text-[11px] text-on-dim font-semibold">
-                Bancos vinculados
-              </span>
-              <div className="absolute inset-0 flex items-center justify-center bg-surface-3/80">
-                <span className="text-[9px] font-bold text-on-dim tracking-wider">PRÓXIMAMENTE</span>
+                <div className="flex gap-2 flex-wrap">
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-3 border border-border relative overflow-hidden opacity-50">
+                    <TranslateIcon iconKey="wallet" size={12} className="text-on-dim" />
+                    <span className="text-[11px] text-on-dim font-semibold">
+                      Bancos vinculados
+                    </span>
+                    <div className="absolute inset-0 flex items-center justify-center bg-surface-3/80">
+                      <span className="text-[9px] font-bold text-on-dim tracking-wider">PRÓXIMAMENTE</span>
+                    </div>
+                  </div>
+
+                  {guardaditosCount > 0 && (
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
+                      <TranslateIcon iconKey="piggybank" size={12} className="text-primary" />
+                      <span className="text-[11px] text-primary font-semibold">
+                        {guardaditosCount} {guardaditosCount === 1 ? "Guardadito" : "Guardaditos"}
+                      </span>
+                    </div>
+                  )}
+
+                  {pockets.length > 0 && (
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-3 border border-border">
+                      <TranslateIcon iconKey="creditCard" size={12} className="text-on-dim" />
+                      <span className="text-[11px] text-on-dim font-semibold">
+                        {pockets.length} {pockets.length === 1 ? "Pocket" : "Pockets"}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            </section>
 
-            {guardaditosCount > 0 && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
-                <TranslateIcon iconKey="piggybank" size={12} className="text-primary" />
-                <span className="text-[11px] text-primary font-semibold">
-                  {guardaditosCount} {guardaditosCount === 1 ? "Guardadito" : "Guardaditos"}
-                </span>
+
+          </div>{/* END LEFT COLUMN */}
+
+          {/* RIGHT COLUMN: Settings + Support + Danger Zone */}
+          <div className="lg:col-span-2 flex flex-col gap-5">
+
+            {/* Account Settings */}
+            <section className="bg-surface-2 border border-border rounded-2xl overflow-hidden">
+              <h2 className="px-5 pt-5 pb-3 text-[10px] font-bold tracking-[0.12em] uppercase text-on-muted">
+                Configuración de Cuenta
+              </h2>
+              <div className="divide-y divide-white/5">
+                {SETTINGS_ROWS.map(({ href, label, iconKey }) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    className="flex items-center gap-3.5 px-5 py-4 hover:bg-white/[0.02] transition-colors duration-150"
+                  >
+                    <div className="size-8 rounded-xl bg-surface-3 flex items-center justify-center text-on-dim shrink-0">
+                      <TranslateIcon iconKey={iconKey} size={16} className="text-current" />
+                    </div>
+                    <span className="flex-1 text-sm text-on-surface">{label}</span>
+                    <TranslateIcon iconKey="chevronRight" size={16} className="text-on-dim" />
+                  </Link>
+                ))}
               </div>
-            )}
+            </section>
 
-            {pockets.length > 0 && (
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-3 border border-border">
-                <TranslateIcon iconKey="creditCard" size={12} className="text-on-dim" />
-                <span className="text-[11px] text-on-dim font-semibold">
-                  {pockets.length} {pockets.length === 1 ? "Pocket" : "Pockets"}
-                </span>
+            {/* Support */}
+            <section className="bg-surface-2 border border-border rounded-2xl overflow-hidden">
+              <h2 className="px-5 pt-5 pb-3 text-[10px] font-bold tracking-[0.12em] uppercase text-on-muted">
+                Soporte
+              </h2>
+              <Link
+                href="/support"
+                className="flex items-center gap-3.5 px-5 py-4 hover:bg-white/[0.02] transition-colors duration-150"
+              >
+                <div className="size-8 rounded-xl bg-surface-3 flex items-center justify-center text-on-dim shrink-0">
+                  <TranslateIcon iconKey="helpCircle" size={16} className="text-current" />
+                </div>
+                <span className="flex-1 text-sm text-on-surface">Centro de Ayuda</span>
+                <TranslateIcon iconKey="chevronRight" size={16} className="text-on-dim" />
+              </Link>
+            </section>
+
+            {/* Danger Zone */}
+            <section className="bg-surface-2 border border-error-border rounded-2xl overflow-hidden">
+              <h2 className="px-5 pt-5 pb-3 text-[10px] font-bold tracking-[0.12em] uppercase text-error-icon">
+                Zona de Peligro
+              </h2>
+              <div className="divide-y divide-white/5">
+                <button
+                  onClick={handleLogout}
+                  disabled={isPending}
+                  className="w-full flex items-center gap-3.5 px-5 py-4 hover:bg-white/[0.02] transition-colors duration-150"
+                >
+                  <div className="size-8 rounded-xl bg-surface-3 flex items-center justify-center text-on-dim shrink-0">
+                    <TranslateIcon iconKey="plus" size={16} className="text-current rotate-45" />
+                  </div>
+                  <span className="flex-1 text-sm text-left text-on-surface">Cerrar Sesión</span>
+                </button>
+
+                <button
+                  onClick={() => setIsDeleteOpen(true)}
+                  disabled={isPending}
+                  className="w-full flex items-center gap-3.5 px-5 py-4 hover:bg-error-subtle transition-colors duration-150"
+                >
+                  <div className="size-8 rounded-xl bg-error-subtle flex items-center justify-center text-error-icon shrink-0">
+                    <TranslateIcon iconKey="emergency" size={16} className="text-current" />
+                  </div>
+                  <span className="flex-1 text-sm text-left text-error-text">Eliminar Cuenta</span>
+                  <TranslateIcon iconKey="chevronRight" size={16} className="text-error-icon opacity-50" />
+                </button>
               </div>
-            )}
-          </div>
-        </div>
-      </section>
+            </section>
 
-      {/* Edit username */}
-      <section className="bg-surface-2 border border-border rounded-2xl p-5">
-        <h2 className="text-xs font-bold tracking-[0.1em] uppercase text-on-muted mb-4">
-          Editar Nombre de Usuario
-        </h2>
-        <form onSubmit={handleSubmit} className="flex gap-2 items-center">
-          <input
-            id="username"
-            name="username"
-            type="text"
-            required
-            defaultValue={initialUsername}
-            disabled={isPending}
-            placeholder="Nombre de usuario"
-            className="flex-1 h-10 rounded-xl bg-surface-3 border border-border px-4 text-sm text-on-surface focus:outline-none focus:border-primary transition-all"
-          />
-          <button
-            type="submit"
-            disabled={isPending}
-            className="h-10 px-4 rounded-xl bg-primary-ctr text-on-primary text-xs font-bold tracking-widest uppercase transition-all disabled:opacity-50 hover:-translate-y-0.5 active:translate-y-0 whitespace-nowrap"
-          >
-            {isPending ? "..." : success ? "✓ Guardado" : "Guardar"}
-          </button>
-        </form>
-      </section>
+          </div>{/* END RIGHT COLUMN */}
 
-      {/* Account Settings */}
-      <section className="bg-surface-2 border border-border rounded-2xl overflow-hidden">
-        <h2 className="px-5 pt-5 pb-3 text-[10px] font-bold tracking-[0.12em] uppercase text-on-muted">
-          Configuración de Cuenta
-        </h2>
-        <div className="divide-y divide-white/5">
-          {SETTINGS_ROWS.map(({ href, label, iconKey }) => (
-            <Link
-              key={href}
-              href={href}
-              className="flex items-center gap-3.5 px-5 py-4 hover:bg-white/[0.02] transition-colors duration-150"
-            >
-              <div className="size-8 rounded-xl bg-surface-3 flex items-center justify-center text-on-dim shrink-0">
-                <TranslateIcon iconKey={iconKey} size={16} className="text-current" />
-              </div>
-              <span className="flex-1 text-sm text-on-surface">{label}</span>
-              <TranslateIcon iconKey="chevronRight" size={16} className="text-on-dim" />
-            </Link>
-          ))}
-        </div>
-      </section>
+        </div>{/* END GRID */}
 
-      {/* Support */}
-      <section className="bg-surface-2 border border-border rounded-2xl overflow-hidden">
-        <h2 className="px-5 pt-5 pb-3 text-[10px] font-bold tracking-[0.12em] uppercase text-on-muted">
-          Soporte
-        </h2>
-        <Link
-          href="/support"
-          className="flex items-center gap-3.5 px-5 py-4 hover:bg-white/[0.02] transition-colors duration-150"
-        >
-          <div className="size-8 rounded-xl bg-surface-3 flex items-center justify-center text-on-dim shrink-0">
-            <TranslateIcon iconKey="helpCircle" size={16} className="text-current" />
-          </div>
-          <span className="flex-1 text-sm text-on-surface">Centro de Ayuda</span>
-          <TranslateIcon iconKey="chevronRight" size={16} className="text-on-dim" />
-        </Link>
-      </section>
-
-      {/* Danger Zone */}
-      <section className="bg-surface-2 border border-error-border rounded-2xl overflow-hidden">
-        <h2 className="px-5 pt-5 pb-3 text-[10px] font-bold tracking-[0.12em] uppercase text-error-icon">
-          Zona de Peligro
-        </h2>
-        <div className="divide-y divide-white/5">
-          <button
-            onClick={handleLogout}
-            disabled={isPending}
-            className="w-full flex items-center gap-3.5 px-5 py-4 hover:bg-white/[0.02] transition-colors duration-150"
-          >
-            <div className="size-8 rounded-xl bg-surface-3 flex items-center justify-center text-on-dim shrink-0">
-              <TranslateIcon iconKey="plus" size={16} className="text-current rotate-45" />
-            </div>
-            <span className="flex-1 text-sm text-left text-on-surface">Cerrar Sesión</span>
-          </button>
-
-          <button
-            onClick={() => setIsDeleteOpen(true)}
-            disabled={isPending}
-            className="w-full flex items-center gap-3.5 px-5 py-4 hover:bg-error-subtle transition-colors duration-150"
-          >
-            <div className="size-8 rounded-xl bg-error-subtle flex items-center justify-center text-error-icon shrink-0">
-              <TranslateIcon iconKey="emergency" size={16} className="text-current" />
-            </div>
-            <span className="flex-1 text-sm text-left text-error-text">Eliminar Cuenta</span>
-            <TranslateIcon iconKey="chevronRight" size={16} className="text-error-icon opacity-50" />
-          </button>
-        </div>
-      </section>
+      </div>
 
       {/* Delete Account Modal */}
       <SlidePanel open={isDeleteOpen} onClose={() => setIsDeleteOpen(false)} title="Eliminar Cuenta" titleClassName="text-error-icon">
@@ -303,6 +296,6 @@ export default function ProfileView({
           </button>
         </form>
       </SlidePanel>
-    </div>
+    </>
   );
 }

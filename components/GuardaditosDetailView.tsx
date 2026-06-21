@@ -251,8 +251,8 @@ export default function GuardaditosDetailView({
 
   return (
     <>
-      <div className="w-full max-w-4xl mx-auto px-6 py-6 pb-20 flex flex-col gap-8">
-          {/* Header Card / Progress */}
+      <div className="w-full max-w-6xl mx-auto px-6 py-6 pb-20 flex flex-col gap-8">
+          {/* Header Card / Progress — full width always */}
           <div
             style={{ background: theme.gradient, boxShadow: `0 0 30px ${theme.glowColor}` }}
             className="pinstripe relative overflow-hidden rounded-2xl p-6 border border-border flex flex-col gap-6"
@@ -294,308 +294,322 @@ export default function GuardaditosDetailView({
             ) : null}
           </div>
 
-          {/* SVG Progression Chart */}
-          <section className="bg-surface-1 border border-border rounded-2xl p-6 flex flex-col gap-4">
-            <h2 className="text-sm font-semibold tracking-tight text-on-surface">
-              Progreso Histórico
-            </h2>
-            {plotPoints.length > 1 ? (
-              <div className="w-full relative" style={{ aspectRatio: "3.5 / 1" }}>
-                <svg
-                  viewBox={`0 0 ${width} ${height}`}
-                  className="w-full h-full"
-                >
-                  <defs>
-                    <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={theme.textColor} stopOpacity="0.25" />
-                      <stop offset="100%" stopColor={theme.textColor} stopOpacity="0.0" />
-                    </linearGradient>
-                  </defs>
-                  
-                  {/* Y-axis gridlines & labels */}
-                  <text
-                    x={paddingLeft - 10}
-                    y={height - paddingBottom}
-                    textAnchor="end"
-                    alignmentBaseline="middle"
-                    fill="rgba(255,255,255,0.4)"
-                    fontSize="9"
-                    fontFamily="var(--font-data)"
-                  >
-                    $0
-                  </text>
-                  <line
-                    x1={paddingLeft}
-                    y1={height - paddingBottom}
-                    x2={width - paddingRight}
-                    y2={height - paddingBottom}
-                    stroke="rgba(255,255,255,0.1)"
-                    strokeWidth="1"
-                  />
+          {/* Desktop two-column grid / Mobile single column */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
 
-                  <text
-                    x={paddingLeft - 10}
-                    y={paddingTop + (height - paddingBottom - paddingTop) / 2}
-                    textAnchor="end"
-                    alignmentBaseline="middle"
-                    fill="rgba(255,255,255,0.4)"
-                    fontSize="9"
-                    fontFamily="var(--font-data)"
-                  >
-                    ${Math.round(maxVal / 2).toLocaleString("en-US")}
-                  </text>
-                  <line
-                    x1={paddingLeft}
-                    y1={paddingTop + (height - paddingBottom - paddingTop) / 2}
-                    x2={width - paddingRight}
-                    y2={paddingTop + (height - paddingBottom - paddingTop) / 2}
-                    stroke="rgba(255,255,255,0.03)"
-                    strokeWidth="1"
-                    strokeDasharray="3,3"
-                  />
+            {/* LEFT COLUMN: Chart + Transactions */}
+            <div className="lg:col-span-2 flex flex-col gap-8">
 
-                  <text
-                    x={paddingLeft - 10}
-                    y={paddingTop}
-                    textAnchor="end"
-                    alignmentBaseline="middle"
-                    fill="rgba(255,255,255,0.4)"
-                    fontSize="9"
-                    fontFamily="var(--font-data)"
-                  >
-                    ${Math.round(maxVal).toLocaleString("en-US")}
-                  </text>
-                  <line
-                    x1={paddingLeft}
-                    y1={paddingTop}
-                    x2={width - paddingRight}
-                    y2={paddingTop}
-                    stroke="rgba(255,255,255,0.03)"
-                    strokeWidth="1"
-                    strokeDasharray="3,3"
-                  />
-
-                  {/* Gradient Area under line */}
-                  {areaString && <path d={areaString} fill="url(#chartGradient)" />}
-                  
-                  {/* Line path */}
-                  {pointsString && (
-                    <polyline
-                      fill="none"
-                      stroke={theme.textColor}
-                      strokeWidth="2.5"
-                      points={pointsString}
-                    />
-                  )}
-
-                  {/* Dot values (amounts above the circles) */}
-                  {coords.map((c, idx) => {
-                    if (c.change === 0) return null;
-                    const showVal = showXLabelList[idx];
-                    if (!showVal) return null;
-                    let anchor: "start" | "middle" | "end" = "middle";
-                    if (idx === 0) anchor = "start";
-                    if (idx === coords.length - 1) anchor = "end";
-                    return (
+              {/* SVG Progression Chart */}
+              <section className="bg-surface-1 border border-border rounded-2xl p-6 flex flex-col gap-4">
+                <h2 className="text-sm font-semibold tracking-tight text-on-surface">
+                  Progreso Histórico
+                </h2>
+                {plotPoints.length > 1 ? (
+                  <div className="w-full relative" style={{ aspectRatio: "3.5 / 1" }}>
+                    <svg
+                      viewBox={`0 0 ${width} ${height}`}
+                      className="w-full h-full"
+                    >
+                      <defs>
+                        <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor={theme.textColor} stopOpacity="0.25" />
+                          <stop offset="100%" stopColor={theme.textColor} stopOpacity="0.0" />
+                        </linearGradient>
+                      </defs>
+                      
+                      {/* Y-axis gridlines & labels */}
                       <text
-                        key={`val-lbl-${idx}`}
-                        x={c.x}
-                        y={c.y - 10}
-                        textAnchor={anchor}
-                        fill={theme.textColor}
-                        fontSize="9"
-                        fontWeight="600"
-                        fontFamily="var(--font-data)"
-                      >
-                        {c.change > 0 ? "+" : "-"}${Math.abs(Math.round(c.change)).toLocaleString("en-US")}
-                      </text>
-                    );
-                  })}
-
-                  {/* Render circles (dots) at each coordinate */}
-                  {coords.map((c, idx) => (
-                    <circle
-                      key={`dot-${idx}`}
-                      cx={c.x}
-                      cy={c.y}
-                      r="4.5"
-                      fill={theme.textColor}
-                      stroke="#0a0a0a"
-                      strokeWidth="1.5"
-                    />
-                  ))}
-
-                  {/* X-axis labels (dates below the circles) */}
-                  {coords.map((c, idx) => {
-                    if (!showXLabelList[idx]) return null;
-                    let anchor: "start" | "middle" | "end" = "middle";
-                    if (idx === 0) anchor = "start";
-                    if (idx === coords.length - 1) anchor = "end";
-                    return (
-                      <text
-                        key={`x-lbl-${idx}`}
-                        x={c.x}
-                        y={height - paddingBottom + 16}
-                        textAnchor={anchor}
+                        x={paddingLeft - 10}
+                        y={height - paddingBottom}
+                        textAnchor="end"
+                        alignmentBaseline="middle"
                         fill="rgba(255,255,255,0.4)"
                         fontSize="9"
                         fontFamily="var(--font-data)"
                       >
-                        {c.date.toLocaleDateString("es-MX", { day: 'numeric', month: 'short' })}
+                        $0
                       </text>
-                    );
-                  })}
-                </svg>
-              </div>
-            ) : (
-              <div className="h-[120px] flex items-center justify-center border border-dashed border-border rounded-xl text-xs text-on-dim">
-                Agrega transacciones o depósitos para ver tu progreso en el tiempo.
-              </div>
-            )}
-          </section>
+                      <line
+                        x1={paddingLeft}
+                        y1={height - paddingBottom}
+                        x2={width - paddingRight}
+                        y2={height - paddingBottom}
+                        stroke="rgba(255,255,255,0.1)"
+                        strokeWidth="1"
+                      />
 
-          {/* Quick Deposit Actions */}
-          <section className="bg-surface-2 border border-border rounded-2xl p-6 flex flex-col gap-4">
-            <div className="flex justify-between items-center">
-              <div>
+                      <text
+                        x={paddingLeft - 10}
+                        y={paddingTop + (height - paddingBottom - paddingTop) / 2}
+                        textAnchor="end"
+                        alignmentBaseline="middle"
+                        fill="rgba(255,255,255,0.4)"
+                        fontSize="9"
+                        fontFamily="var(--font-data)"
+                      >
+                        ${Math.round(maxVal / 2).toLocaleString("en-US")}
+                      </text>
+                      <line
+                        x1={paddingLeft}
+                        y1={paddingTop + (height - paddingBottom - paddingTop) / 2}
+                        x2={width - paddingRight}
+                        y2={paddingTop + (height - paddingBottom - paddingTop) / 2}
+                        stroke="rgba(255,255,255,0.03)"
+                        strokeWidth="1"
+                        strokeDasharray="3,3"
+                      />
+
+                      <text
+                        x={paddingLeft - 10}
+                        y={paddingTop}
+                        textAnchor="end"
+                        alignmentBaseline="middle"
+                        fill="rgba(255,255,255,0.4)"
+                        fontSize="9"
+                        fontFamily="var(--font-data)"
+                      >
+                        ${Math.round(maxVal).toLocaleString("en-US")}
+                      </text>
+                      <line
+                        x1={paddingLeft}
+                        y1={paddingTop}
+                        x2={width - paddingRight}
+                        y2={paddingTop}
+                        stroke="rgba(255,255,255,0.03)"
+                        strokeWidth="1"
+                        strokeDasharray="3,3"
+                      />
+
+                      {/* Gradient Area under line */}
+                      {areaString && <path d={areaString} fill="url(#chartGradient)" />}
+                      
+                      {/* Line path */}
+                      {pointsString && (
+                        <polyline
+                          fill="none"
+                          stroke={theme.textColor}
+                          strokeWidth="2.5"
+                          points={pointsString}
+                        />
+                      )}
+
+                      {/* Dot values (amounts above the circles) */}
+                      {coords.map((c, idx) => {
+                        if (c.change === 0) return null;
+                        const showVal = showXLabelList[idx];
+                        if (!showVal) return null;
+                        let anchor: "start" | "middle" | "end" = "middle";
+                        if (idx === 0) anchor = "start";
+                        if (idx === coords.length - 1) anchor = "end";
+                        return (
+                          <text
+                            key={`val-lbl-${idx}`}
+                            x={c.x}
+                            y={c.y - 10}
+                            textAnchor={anchor}
+                            fill={theme.textColor}
+                            fontSize="9"
+                            fontWeight="600"
+                            fontFamily="var(--font-data)"
+                          >
+                            {c.change > 0 ? "+" : "-"}${Math.abs(Math.round(c.change)).toLocaleString("en-US")}
+                          </text>
+                        );
+                      })}
+
+                      {/* Render circles (dots) at each coordinate */}
+                      {coords.map((c, idx) => (
+                        <circle
+                          key={`dot-${idx}`}
+                          cx={c.x}
+                          cy={c.y}
+                          r="4.5"
+                          fill={theme.textColor}
+                          stroke="#0a0a0a"
+                          strokeWidth="1.5"
+                        />
+                      ))}
+
+                      {/* X-axis labels (dates below the circles) */}
+                      {coords.map((c, idx) => {
+                        if (!showXLabelList[idx]) return null;
+                        let anchor: "start" | "middle" | "end" = "middle";
+                        if (idx === 0) anchor = "start";
+                        if (idx === coords.length - 1) anchor = "end";
+                        return (
+                          <text
+                            key={`x-lbl-${idx}`}
+                            x={c.x}
+                            y={height - paddingBottom + 16}
+                            textAnchor={anchor}
+                            fill="rgba(255,255,255,0.4)"
+                            fontSize="9"
+                            fontFamily="var(--font-data)"
+                          >
+                            {c.date.toLocaleDateString("es-MX", { day: 'numeric', month: 'short' })}
+                          </text>
+                        );
+                      })}
+                    </svg>
+                  </div>
+                ) : (
+                  <div className="h-[120px] flex items-center justify-center border border-dashed border-border rounded-xl text-xs text-on-dim">
+                    Agrega transacciones o depósitos para ver tu progreso en el tiempo.
+                  </div>
+                )}
+              </section>
+
+              {/* Historical Logs List */}
+              <section className="bg-surface-1 border border-border rounded-2xl p-6 flex flex-col gap-4">
                 <h2 className="text-sm font-semibold tracking-tight text-on-surface">
-                  Ingresar Dinero (Ahorrar)
+                  Movimientos del Guardadito
                 </h2>
-                <p className="text-[11px] text-on-dim mt-0.5">
-                  Añade fondos directamente a este guardadito
-                </p>
-              </div>
-              <button
-                onClick={() => setIsDepositOpen(true)}
-                className="h-10 px-5 rounded-xl bg-primary-ctr text-on-primary text-xs font-bold tracking-widest uppercase hover:-translate-y-0.5 active:translate-y-0 transition-all"
-              >
-                Depositar
-              </button>
-            </div>
-          </section>
-
-          {/* Notes & Links Form */}
-          <section className="bg-surface-2 border border-border rounded-2xl p-6">
-            <h2 className="text-sm font-semibold tracking-tight text-on-surface mb-4">
-              Notas y Enlaces
-            </h2>
-            <form onSubmit={handleSaveDetails} className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
-                  Notas sobre tu meta
-                </label>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Escribe detalles como el modelo del auto, fechas estimadas, o planes de viaje..."
-                  rows={3}
-                  disabled={isPending}
-                  className="w-full rounded-xl bg-surface-3 border border-border p-4 text-sm text-on-surface focus:outline-none focus:border-primary transition-all resize-none"
-                />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
-                  Enlace externo (ej. tienda, cotización)
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="url"
-                    value={link}
-                    onChange={(e) => setLink(e.target.value)}
-                    placeholder="https://example.com/item"
-                    disabled={isPending}
-                    className="flex-1 h-11 rounded-xl bg-surface-3 border border-border px-4 text-sm text-on-surface focus:outline-none focus:border-primary transition-all"
-                  />
-                  {guardadito.link && (
-                    <a
-                      href={guardadito.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="h-11 w-11 rounded-xl bg-surface-3 flex items-center justify-center border border-border hover:text-primary transition-colors"
-                      title="Visitar enlace"
-                    >
-                      <TranslateIcon iconKey="plane" size={16} />
-                    </a>
+                <div className="flex flex-col gap-3">
+                  {transactions.length > 0 ? (
+                    transactions.map((tx) => (
+                      <div
+                        key={tx.id}
+                        className="flex items-center justify-between p-3 rounded-xl bg-surface-2/60 border border-border"
+                      >
+                        <div className="flex flex-col">
+                          <span className="text-xs font-semibold text-on-surface">
+                            {tx.title}
+                          </span>
+                          <span className="text-[10px] text-on-dim font-[var(--font-data)]">
+                            {new Date(tx.created_at).toLocaleDateString("es-MX", {
+                              day: "numeric",
+                              month: "short",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                        </div>
+                        <span
+                          className={`text-xs font-bold font-[var(--font-data)] ${
+                            tx.is_positive ? "text-error" : "text-primary"
+                          }`}
+                        >
+                          {tx.is_positive ? "-" : "+"}${Number(tx.amount).toFixed(2)}
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-6 text-xs text-on-dim">
+                      No hay transacciones registradas para este guardadito.
+                    </div>
                   )}
                 </div>
-              </div>
+              </section>
 
-              <div className="flex justify-end items-center gap-3">
-                {isSaved && (
-                  <span className="text-xs text-primary animate-pulse">
-                    ¡Guardado con éxito!
-                  </span>
-                )}
+            </div>{/* END LEFT COLUMN */}
+
+            {/* RIGHT COLUMN: Deposit + Notes (sticky on desktop) */}
+            <div className="lg:col-span-1 flex flex-col gap-6 lg:sticky lg:top-6">
+
+              {/* Quick Deposit Actions */}
+              <section className="bg-surface-2 border border-border rounded-2xl p-6 flex flex-col gap-4">
+                <div>
+                  <h2 className="text-sm font-semibold tracking-tight text-on-surface">
+                    Ingresar Dinero
+                  </h2>
+                  <p className="text-[11px] text-on-dim mt-0.5">
+                    Añade fondos directamente a este guardadito
+                  </p>
+                </div>
                 <button
-                  type="submit"
-                  disabled={isPending}
-                  className="h-10 px-5 rounded-xl bg-surface-3 border border-white/10 hover:border-white/20 text-xs font-semibold tracking-wider hover:-translate-y-0.5 active:translate-y-0 transition-all text-on-surface disabled:opacity-50"
+                  onClick={() => setIsDepositOpen(true)}
+                  className="w-full h-10 rounded-xl bg-primary-ctr text-on-primary text-xs font-bold tracking-widest uppercase hover:-translate-y-0.5 active:translate-y-0 transition-all"
                 >
-                  Guardar Detalles
+                  Depositar
+                </button>
+              </section>
+
+              {/* Notes & Links Form */}
+              <section className="bg-surface-2 border border-border rounded-2xl p-6">
+                <h2 className="text-sm font-semibold tracking-tight text-on-surface mb-4">
+                  Notas y Enlaces
+                </h2>
+                <form onSubmit={handleSaveDetails} className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
+                      Notas sobre tu meta
+                    </label>
+                    <textarea
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="Escribe detalles como el modelo del auto, fechas estimadas, o planes de viaje..."
+                      rows={3}
+                      disabled={isPending}
+                      className="w-full rounded-xl bg-surface-3 border border-border p-4 text-sm text-on-surface focus:outline-none focus:border-primary transition-all resize-none"
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5">
+                    <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
+                      Enlace externo (ej. tienda, cotización)
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        type="url"
+                        value={link}
+                        onChange={(e) => setLink(e.target.value)}
+                        placeholder="https://example.com/item"
+                        disabled={isPending}
+                        className="flex-1 h-11 rounded-xl bg-surface-3 border border-border px-4 text-sm text-on-surface focus:outline-none focus:border-primary transition-all"
+                      />
+                      {guardadito.link && (
+                        <a
+                          href={guardadito.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="h-11 w-11 rounded-xl bg-surface-3 flex items-center justify-center border border-border hover:text-primary transition-colors"
+                          title="Visitar enlace"
+                        >
+                          <TranslateIcon iconKey="plane" size={16} />
+                        </a>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end items-center gap-3">
+                    {isSaved && (
+                      <span className="text-xs text-primary animate-pulse">
+                        ¡Guardado con éxito!
+                      </span>
+                    )}
+                    <button
+                      type="submit"
+                      disabled={isPending}
+                      className="h-10 px-5 rounded-xl bg-surface-3 border border-white/10 hover:border-white/20 text-xs font-semibold tracking-wider hover:-translate-y-0.5 active:translate-y-0 transition-all text-on-surface disabled:opacity-50"
+                    >
+                      Guardar Detalles
+                    </button>
+                  </div>
+                </form>
+              </section>
+
+              {/* Danger zone */}
+              <div className="pt-4 border-t border-border flex flex-wrap justify-center gap-6">
+                <button
+                  onClick={() => setIsWithdrawOpen(true)}
+                  className="text-xs font-bold tracking-widest text-error-text opacity-60 hover:opacity-100 transition-opacity uppercase"
+                >
+                  Quitar Dinero
+                </button>
+                <span className="text-on-surface opacity-10 hidden sm:inline">|</span>
+                <button
+                  onClick={() => setIsDeleteOpen(true)}
+                  className="text-xs font-bold tracking-widest text-error-icon hover:text-error-icon transition-colors uppercase"
+                >
+                  Eliminar Guardadito
                 </button>
               </div>
-            </form>
-          </section>
 
-          {/* Historical Logs List */}
-          <section className="bg-surface-1 border border-border rounded-2xl p-6 flex flex-col gap-4">
-            <h2 className="text-sm font-semibold tracking-tight text-on-surface">
-              Movimientos del Guardadito
-            </h2>
-            <div className="flex flex-col gap-3">
-              {transactions.length > 0 ? (
-                transactions.map((tx) => (
-                  <div
-                    key={tx.id}
-                    className="flex items-center justify-between p-3 rounded-xl bg-surface-2/60 border border-border"
-                  >
-                    <div className="flex flex-col">
-                      <span className="text-xs font-semibold text-on-surface">
-                        {tx.title}
-                      </span>
-                      <span className="text-[10px] text-on-dim font-[var(--font-data)]">
-                        {new Date(tx.created_at).toLocaleDateString("es-MX", {
-                          day: "numeric",
-                          month: "short",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
-                    </div>
-                    <span
-                      className={`text-xs font-bold font-[var(--font-data)] ${
-                        tx.is_positive ? "text-error" : "text-primary"
-                      }`}
-                    >
-                      {tx.is_positive ? "-" : "+"}${Number(tx.amount).toFixed(2)}
-                    </span>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-6 text-xs text-on-dim">
-                  No hay transacciones registradas para este guardadito.
-                </div>
-              )}
-            </div>
-          </section>
+            </div>{/* END RIGHT COLUMN */}
 
-          {/* Hidden withdraw option at the bottom */}
-          <div className="mt-12 pt-8 border-t border-border flex flex-wrap justify-center gap-6">
-            <button
-              onClick={() => setIsWithdrawOpen(true)}
-              className="text-xs font-bold tracking-widest text-error-text opacity-60 hover:text-error-text transition-colors uppercase"
-            >
-              Quitar Dinero
-            </button>
-            <span className="text-on-surface opacity-10 hidden sm:inline">|</span>
-            <button
-              onClick={() => setIsDeleteOpen(true)}
-              className="text-xs font-bold tracking-widest text-error-icon hover:text-error-icon transition-colors uppercase"
-            >
-              Eliminar Guardadito
-            </button>
-          </div>
+          </div>{/* END GRID */}
+
         </div>
 
       {/* Deposit Modal */}
