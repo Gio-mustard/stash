@@ -1,26 +1,135 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   globals.css — Stash · Emerald Nocturne · Tailwind v4
+   ───────────────────────────────────────────────────────────────────────── */
+
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ── Tailwind v4 theme tokens ─────────────────────────────────────────── */
+@theme {
+  /* Fonts */
+  --font-ui:   var(--font-inter, "Inter", system-ui, sans-serif);
+  --font-data: var(--font-geist-sans, "Geist", monospace);
+
+  /* Palette */
+  --color-bg:               #0a0a0a;
+  --color-surface-1:        #131313;
+  --color-surface-2:        #1a1a1a;
+  --color-surface-3:        #262626;
+  --color-surface-hi:       #2a2a2a;
+
+  --color-on-surface:       #e5e2e1;
+  --color-on-muted:         #c0c9c0;
+  --color-on-dim:           #8a938b;
+
+  --color-primary:          #96d4ab;
+  --color-primary-deep:     #0a4d2e;
+  --color-primary-mid:      #0d5e38;
+  --color-primary-ctr:      #0a4d2e;
+
+  --color-pending:          #e8a23a;
+  --color-error:            #ffb4ab;
+
+  /* Shadows */
+  --shadow-fab: 0 0 28px rgba(10,77,46,0.45), 0 4px 16px rgba(0,0,0,0.6);
+  --shadow-glow: 0 0 20px rgba(10,77,46,0.15);
+  --shadow-card: 0 2px 12px rgba(0,0,0,0.4);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* ── Base ─────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-on-surface);
+  font-family: var(--font-ui);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+a  { color: inherit; text-decoration: none; }
+ul { list-style: none; padding: 0; margin: 0; }
+
+/* ── Animations ───────────────────────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.anim-fade-up-1 { animation: fade-up 0.45s ease both; }
+.anim-fade-up-2 { animation: fade-up 0.45s 0.08s ease both; }
+.anim-fade-up-3 { animation: fade-up 0.45s 0.14s ease both; }
+.anim-fade-up-4 { animation: fade-up 0.45s 0.20s ease both; }
+
+/* ── Pinstripe texture (can't be done in Tailwind) ────────────────────── */
+.pinstripe::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 12px,
+    rgba(255,255,255,0.015) 12px,
+    rgba(255,255,255,0.015) 13px
+  );
+  pointer-events: none;
+}
+
+/* ── Radial shimmer on balance card (decorative only) ─────────────────── */
+.balance-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 50% 120%,
+    rgba(10,77,46,0.18) 0%,
+    transparent 65%
+  );
+  pointer-events: none;
+}
+
+/* ── Custom scrollbar ────────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-surface-hi); border-radius: 4px; }
+
+/* ── Focus ring ──────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Cross-document View Transitions ─────────────────────────────────── */
+/* Progressive enhancement: silently ignored by browsers that don't support it */
+/* (Chrome 126+, Edge 126+, Safari 18.2+). Firefox degrades to instant navigation. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+
+  /* Subtle fade + slight upward drift — feels like an SPA without the overhead */
+  ::view-transition-old(root) {
+    animation: 180ms ease-out both vt-fade-out;
+  }
+
+  ::view-transition-new(root) {
+    animation: 220ms ease-out both vt-fade-in;
+  }
+}
+
+@keyframes vt-fade-out {
+  to { opacity: 0; transform: translateY(-4px); }
+}
+
+@keyframes vt-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
 }

@@ -1,0 +1,209 @@
+"use client";
+
+import React, { useState, useTransition } from "react";
+import { Drawer } from "vaul";
+import TranslateIcon from "./translateIcon";
+import { createGuardadito } from "@/app/actions_extended";
+
+const ICON_OPTIONS = [
+  { key: "piggybank",  label: "Alcancía" },
+  { key: "plane",      label: "Viaje" },
+  { key: "car",        label: "Auto" },
+  { key: "emergency",  label: "Emergencia" },
+  { key: "shopping",   label: "Compras" },
+  { key: "briefcase",  label: "Trabajo" },
+  { key: "creditCard", label: "Tarjeta" },
+  { key: "wallet",     label: "Wallet" },
+  { key: "dividend",   label: "Inversión" },
+  { key: "home",       label: "Casa" },
+] as const;
+
+type CreateGuardaditoDrawerProps = {
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  walletBalance: number;
+};
+
+/**
+ * CreateGuardaditoDrawer renders a Vaul Drawer for creating a new savings goal.
+ * Bottom sheet on mobile, right-side panel on desktop.
+ *
+ * @param props - Open state and change handler.
+ */
+export default function CreateGuardaditoDrawer({
+  isOpen,
+  onOpenChange,
+  walletBalance,
+}: CreateGuardaditoDrawerProps) {
+  const [isPending, startTransition] = useTransition();
+  const [selectedIcon, setSelectedIcon] = useState<string>("piggybank");
+  const [hasTarget, setHasTarget] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      setSelectedIcon("piggybank");
+      setHasTarget(true);
+      setError(null);
+    }
+    onOpenChange(open);
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
+    const formData = new FormData(e.currentTarget);
+    formData.set("icon", selectedIcon);
+
+    const initialAmountStr = formData.get("initialAmount") as string | null;
+    const initialAmount = initialAmountStr && initialAmountStr !== "" ? parseFloat(initialAmountStr) : 0;
+
+    if (!isNaN(initialAmount) && initialAmount > walletBalance) {
+      setError(`Fondos insuficientes en tu billetera. Tienes $${walletBalance.toLocaleString("en-US", { minimumFractionDigits: 2 })} disponible.`);
+      return;
+    }
+
+    startTransition(async () => {
+      try {
+        await createGuardadito(formData);
+        handleOpenChange(false);
+      } catch (err: any) {
+        setError(err.message || "Error al crear el guardadito");
+      }
+    });
+  };
+
+  return (
+    <Drawer.Root open={isOpen} onOpenChange={handleOpenChange} direction="right">
+      <Drawer.Portal>
+        <Drawer.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 animate-in fade-in duration-200" />
+        <Drawer.Content className="
+          fixed z-50 text-[var(--color-on-surface)] bg-[var(--color-surface-3)] focus:outline-none
+          bottom-0 left-0 right-0 max-h-[90vh] rounded-t-2xl border-t border-white/5 flex flex-col
+          sm:top-0 sm:right-0 sm:left-auto sm:bottom-0 sm:w-[420px] sm:max-h-full sm:rounded-l-2xl sm:rounded-tr-none sm:border-l sm:border-t-0
+        ">
+          <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-white/10 my-4 sm:hidden" />
+
+          <div className="flex-1 overflow-y-auto px-6 pb-8 sm:py-8 w-full flex flex-col gap-6">
+            <div className="flex items-center justify-between">
+              <Drawer.Title className="text-lg font-semibold tracking-tight text-[var(--color-on-surface)]">
+                Nuevo Guardadito
+              </Drawer.Title>
+              <Drawer.Close className="text-[var(--color-on-dim)] hover:text-[var(--color-on-surface)] transition-colors">
+                <TranslateIcon iconKey="plus" size={20} className="rotate-45" />
+              </Drawer.Close>
+            </div>
+
+            {error && (
+              <div className="p-3 rounded-xl bg-red-950/30 border border-red-500/30 text-red-200 text-xs flex items-start gap-2 animate-in fade-in duration-200">
+                <TranslateIcon iconKey="emergency" size={14} className="shrink-0 mt-0.5 text-red-400" />
+                <div className="flex-1">
+                  <p className="font-semibold text-red-300">Error</p>
+                  <p className="opacity-90">{error}</p>
+                </div>
+                <button type="button" onClick={() => setError(null)} className="opacity-65 hover:opacity-100 transition-opacity">
+                  <TranslateIcon iconKey="plus" size={12} className="rotate-45" />
+                </button>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="guardadito-name" className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+                  Nombre
+                </label>
+                <input
+                  id="guardadito-name"
+                  name="name"
+                  type="text"
+                  required
+                  disabled={isPending}
+                  placeholder="ej. Viaje a Japón, Nuevo iPhone…"
+                  className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+                />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+                  Ícono
+                </span>
+                <div className="grid grid-cols-5 gap-2">
+                  {ICON_OPTIONS.map(({ key, label }) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setSelectedIcon(key)}
+                      aria-label={label}
+                      className={`
+                        flex flex-col items-center gap-1 p-2 rounded-xl border transition-all duration-200
+                        ${selectedIcon === key
+                          ? "bg-[var(--color-primary)]/10 border-[var(--color-primary)] text-[var(--color-primary)]"
+                          : "bg-[var(--color-surface-2)] border-white/5 text-[var(--color-on-dim)] hover:border-white/15 hover:text-[var(--color-on-surface)]"
+                        }
+                      `}
+                    >
+                      <TranslateIcon iconKey={key} size={20} className="text-current" />
+                      <span className="text-[9px] font-semibold tracking-wide uppercase truncate w-full text-center">
+                        {label}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+                    Meta de Ahorro (opcional)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setHasTarget((p) => !p)}
+                    className="text-[10px] text-[var(--color-primary)] font-semibold hover:opacity-75 transition-opacity"
+                  >
+                    {hasTarget ? "Sin meta" : "Agregar meta"}
+                  </button>
+                </div>
+                {hasTarget && (
+                  <input
+                    name="target"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    disabled={isPending}
+                    placeholder="0.00"
+                    className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+                  />
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="guardadito-initial" className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+                  Monto inicial (opcional)
+                </label>
+                <input
+                  id="guardadito-initial"
+                  name="initialAmount"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  disabled={isPending}
+                  placeholder="0.00"
+                  className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isPending}
+                className="h-12 w-full mt-2 rounded-xl bg-[var(--color-primary-ctr)] text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase shadow-[var(--shadow-fab)] transition-all hover:-translate-y-0.5 hover:bg-[var(--color-primary-mid)] active:translate-y-0 disabled:opacity-50"
+              >
+                {isPending ? "Creando..." : "Crear Guardadito"}
+              </button>
+            </form>
+          </div>
+        </Drawer.Content>
+      </Drawer.Portal>
+    </Drawer.Root>
+  );
+}

@@ -1,65 +1,141 @@
-import Image from "next/image";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase";
+import DashboardView, { type CustomCategory } from "@/components/DashboardView";
+import type { GuardaditoData } from "@/components/GuardaditosSection";
+import type { TransactionData } from "@/components/TransactionItem";
 
-export default function Home() {
+/**
+ * DashboardPage is the server-side entry point for the main dashboard view.
+ * All Supabase queries run in parallel via Promise.all to minimize total wait time.
+ *
+ * @returns The rendered DashboardView with hydrated database states.
+ */
+export default async function DashboardPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  // ── Parallel data fetching: all queries fire at the same time ──────────────
+  const [
+    { data: profile },
+    { data: portfolio },
+    { data: dbGuardaditos },
+    { data: dbPockets },
+    { data: dbTransactions },
+    { data: dbCustomCategories },
+  ] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("username, avatar_url")
+      .eq("id", user.id)
+      .single(),
+    supabase
+      .from("portfolios")
+      .select("balance, change_percent, is_positive")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("guardaditos")
+      .select("id, name, icon, current, target, theme_index")
+      .eq("user_id", user.id)
+      .order("theme_index", { ascending: true }),
+    supabase
+      .from("pockets")
+      .select("id, name, subtitle, balance, design_preset, custom_design")
+      .eq("user_id", user.id)
+      .order("sort_order", { ascending: true }),
+    supabase
+      .from("transactions")
+      .select("id, icon, title, subtitle, amount, is_positive, status")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(10),
+    supabase
+      .from("custom_categories")
+      .select("id, label, icon")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: true }),
+  ]);
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const userName = profile?.username || user.email?.split("@")[0] || "User";
+  const avatarUrl = profile?.avatar_url ?? null;
+
+  const guardaditos: GuardaditoData[] = (dbGuardaditos || []).map((row) => ({
+    id: row.id,
+    name: row.name,
+    icon: row.icon,
+    current: Number(row.current),
+    target: row.target !== null ? Number(row.target) : null,
+    formattedAmount: `$${Number(row.current).toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    })}`,
+    themeIndex: row.theme_index,
+  }));
+
+  const pockets = (dbPockets || []).map((row) => ({
+    id: row.id,
+    name: row.name,
+    subtitle: row.subtitle,
+    balance: Number(row.balance),
+    design_preset: row.design_preset as any,
+    custom_design: row.custom_design as any,
+  }));
+
+  const guardaditosSum = guardaditos.reduce((sum, g) => sum + g.current, 0);
+  const pocketsSum = pockets.reduce((sum, p) => sum + p.balance, 0);
+  const totalBalanceVal = (portfolio ? Number(portfolio.balance) : 0) + guardaditosSum + pocketsSum;
+
+  const portfolioFormatted = {
+    balance: `$${totalBalanceVal.toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`,
+    changePercent: portfolio
+      ? `${portfolio.is_positive ? "+" : "-"}${Number(
+          portfolio.change_percent
+        ).toFixed(1)}%`
+      : "+0.0%",
+    isPositive: portfolio ? portfolio.is_positive : true,
+    rawWalletBalance: portfolio ? Number(portfolio.balance) : 0,
+  };
+
+  const transactions: TransactionData[] = (dbTransactions || []).map((row) => ({
+    id: row.id,
+    icon: row.icon,
+    title: row.title,
+    subtitle: row.subtitle,
+    amount: `${row.is_positive ? "+" : "-"}$${Number(row.amount).toLocaleString(
+      "en-US",
+      {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }
+    )}`,
+    isPositive: row.is_positive,
+    status: row.status as "PENDING" | "COMPLETED" | "FAILED",
+  }));
+
+  const customCategories: CustomCategory[] = (dbCustomCategories || []).map((row) => ({
+    id: row.id,
+    label: row.label,
+    icon: row.icon,
+  }));
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <DashboardView
+      userName={userName}
+      avatarUrl={avatarUrl}
+      portfolio={portfolioFormatted}
+      guardaditos={guardaditos}
+      pockets={pockets}
+      transactions={transactions}
+      customCategories={customCategories}
+    />
   );
 }
+
