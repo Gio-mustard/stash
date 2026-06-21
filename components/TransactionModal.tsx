@@ -261,7 +261,7 @@ export default function TransactionModal({
                     setErrorMessage(null);
                   }}
                   disabled={isPending}
-                  placeholder="0.00"
+                  placeholder="0"
                   className="font-[var(--font-data)] text-[46px] font-bold tracking-tight text-[var(--color-on-surface)] bg-transparent border-none outline-none w-56 text-center placeholder:text-white/20"
                 />
               </div>
