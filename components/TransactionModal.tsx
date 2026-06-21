@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useTransition, useRef, useCallback } from "react";
+import React, { useState, useTransition, useRef, useCallback, useEffect } from "react";
 import { Drawer } from "vaul";
 import TranslateIcon from "./translateIcon";
 import { ICON_MAP } from "./translateIcon";
@@ -65,11 +65,36 @@ export default function TransactionModal({
   const [localCustomCategories, setLocalCustomCategories] = useState<CustomCategory[]>(customCategories);
   const [amountVal, setAmountVal] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [keyboardOffset, setKeyboardOffset] = useState(0);
 
   const [isPending, startTransition] = useTransition();
   const [isSavingCat, startCatTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const today = new Date().toISOString().slice(0, 10);
+
+  // iOS fix: when the virtual keyboard appears, Safari pans the visual viewport
+  // upward. Fixed elements don't follow that pan, so we compensate manually
+  // by translating the drawer content up by exactly the keyboard height.
+  useEffect(() => {
+    if (!isOpen || typeof window === "undefined") return;
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    const sync = () => {
+      const offset = window.innerHeight - vv.offsetTop - vv.height;
+      setKeyboardOffset(Math.max(0, offset));
+    };
+
+    vv.addEventListener("resize", sync);
+    vv.addEventListener("scroll", sync);
+    sync();
+
+    return () => {
+      vv.removeEventListener("resize", sync);
+      vv.removeEventListener("scroll", sync);
+      setKeyboardOffset(0);
+    };
+  }, [isOpen]);
 
   const handleOpenChange = useCallback((open: boolean) => {
     if (!open) {
@@ -190,10 +215,18 @@ export default function TransactionModal({
         <Drawer.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 animate-in fade-in duration-200 bottom-0 right-0" />
         <Drawer.Content className="
           fixed z-50 bg-[var(--color-surface-3)] text-[var(--color-on-surface)] focus:outline-none
-          bottom-0 left-0 right-0 h-[90dvh] rounded-t-2xl border-t border-white/5 flex flex-row
+          bottom-0 left-0 right-0 h-[90dvh] rounded-t-2xl border-t border-white/5
           sm:top-0 sm:right-0 sm:left-auto sm:bottom-0 sm:w-[420px] sm:h-full sm:rounded-l-2xl sm:rounded-tr-none sm:border-l sm:border-t-0
-          ml-2 rounded-r-none
+          ml-2 rounded-r-none overflow-hidden
         ">
+          {/* Inner wrapper that shifts UP by the keyboard height on iOS */}
+          <div
+            className="flex flex-row w-full h-full"
+            style={{
+              transform: `translateY(${-keyboardOffset}px)`,
+              transition: keyboardOffset > 0 ? "transform 0.25s ease-out" : "none",
+            }}
+          >
           <div className=" w-1.5 h-12 flex-shrink-0 rounded-full bg-white/10 my-4 sm:hidden self-center ml-2" />
 
           <form onSubmit={handleSubmit} className="flex-1 min-h-0 flex flex-col py-6 overflow-y-auto">
@@ -502,6 +535,7 @@ export default function TransactionModal({
               </button>
             </div>
           </form>
+          </div>{/* end keyboard-offset wrapper */}
         </Drawer.Content>
       </Drawer.Portal>
     </Drawer.Root>
