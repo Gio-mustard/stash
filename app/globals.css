@@ -264,6 +264,8 @@ ul { list-style: none; padding: 0; margin: 0; }
 @keyframes vt-fade-in {
   from { opacity: 0; transform: translateY(6px); }
 }
-input{
-  font-size: 18px ;
+input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+textarea,
+select {
+  font-size: 17px !important;
 }
