@@ -109,7 +109,7 @@ export default function BottomNav({ onCreateAction }: BottomNavProps) {
       <nav
         aria-label="Main navigation"
         className="
-          fixed bottom-0 left-0 right-0 z-20
+          sticky bottom-0 left-0 right-0 z-20
           lg:hidden
           h-[72px]
           bg-surface-1 border-t border-border
