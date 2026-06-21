@@ -185,7 +185,7 @@ export default function TransactionModal({
   ];
 
   return (
-    <Drawer.Root open={isOpen} onOpenChange={handleOpenChange} direction="right">
+    <Drawer.Root open={isOpen} onOpenChange={handleOpenChange} direction="bottom">
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 animate-in fade-in duration-200 bottom-0 right-0" />
         <Drawer.Content className="
