@@ -31,11 +31,11 @@ export default function ActionButtons({
         className="
           flex-1 flex items-center justify-center gap-2
           h-[52px] rounded-full
-          bg-[var(--color-primary-ctr)] text-[var(--color-on-surface)]
+          bg-primary-ctr text-on-primary
           font-[var(--font-data)] text-[12px] font-bold tracking-[0.1em] uppercase
           border-none
           transition-all duration-200
-          hover:-translate-y-px hover:bg-[var(--color-primary-mid)]
+          hover:-translate-y-px hover:bg-primary-mid
           hover:shadow-[0_0_16px_rgba(10,77,46,0.35)]
           active:translate-y-0
           text-nowrap px-4
@@ -43,7 +43,7 @@ export default function ActionButtons({
       >
         <span
           aria-hidden="true"
-          className="inline-flex items-center justify-center size-5 rounded-full bg-[var(--color-primary)]/15 text-[var(--color-primary)]"
+          className="inline-flex items-center justify-center size-5 rounded-full bg-primary/15 text-primary"
         >
           <TranslateIcon iconKey="minus" size={12} className="text-current" />
         </span>
@@ -57,18 +57,18 @@ export default function ActionButtons({
         className="
           flex-1 flex items-center justify-center gap-2
           h-[52px] rounded-full
-          bg-transparent text-[var(--color-on-muted)]
+          bg-transparent text-on-muted
           font-[var(--font-data)] text-[12px] font-bold tracking-[0.1em] uppercase
-          border border-white/5
+          border border-border
           transition-all duration-200
-          hover:-translate-y-px hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]
+          hover:-translate-y-px hover:border-primary hover:text-primary
           active:translate-y-0
           px-4
         "
       >
         <span
           aria-hidden="true"
-          className="inline-flex items-center justify-center size-5 rounded-full bg-white/7 text-[var(--color-on-muted)]"
+          className="inline-flex items-center justify-center size-5 rounded-full bg-black/10 dark:bg-white/10 text-on-muted"
         >
           <TranslateIcon iconKey="plus" size={12} className="text-current" />
         </span>

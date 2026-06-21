@@ -80,8 +80,8 @@ export default function DashboardView({
               isPositive={portfolio.isPositive}
             />
             <ActionButtons
-              onAddExpense={() => router.push("/transaction/new?type=EXPENSE")}
-              onAddIncome={() => router.push("/transaction/new?type=INCOME")}
+              onAddExpense={() => router.push("/transaction?type=EXPENSE")}
+              onAddIncome={() => router.push("/transaction?type=INCOME")}
             />
             <GuardaditosSection
               items={guardaditos}

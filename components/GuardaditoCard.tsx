@@ -8,16 +8,16 @@ type GuardaditoCardProps = {
 
 const THEMES = [
   {
-    gradient: "linear-gradient(135deg, #1a1a1a 0%, rgba(10,77,46,0.18) 100%)",
-    iconColor: "#96d4ab",
+    gradient: "linear-gradient(135deg, var(--color-surface-2) 0%, rgba(10,77,46,0.18) 100%)",
+    iconColor: "var(--color-primary-deep)",
   },
   {
-    gradient: "linear-gradient(135deg, #1a1a1a 0%, rgba(45,106,72,0.14) 100%)",
-    iconColor: "#7fbd95",
+    gradient: "linear-gradient(135deg, var(--color-surface-2) 0%, rgba(45,106,72,0.14) 100%)",
+    iconColor: "var(--color-primary-mid)",
   },
   {
-    gradient: "linear-gradient(135deg, #181818 0%, rgba(17,81,50,0.2) 100%)",
-    iconColor: "#b1f1c6",
+    gradient: "linear-gradient(135deg, var(--color-surface-1) 0%, rgba(17,81,50,0.2) 100%)",
+    iconColor: "var(--color-primary-ctr)",
   },
 ] as const;
 
@@ -41,7 +41,7 @@ export default function GuardaditoCard({ guardadito }: GuardaditoCardProps) {
           relative overflow-hidden
           flex flex-col justify-end
           min-h-[160px] w-full rounded-2xl p-5
-          border border-white/5
+          border border-border
           cursor-pointer
           transition-all duration-200
           hover:-translate-y-0.5
@@ -57,10 +57,10 @@ export default function GuardaditoCard({ guardadito }: GuardaditoCardProps) {
         </div>
  
         <div className="flex flex-col gap-1 mt-6">
-          <p className="font-[var(--font-data)] text-[11px] font-semibold tracking-[0.12em] uppercase text-[var(--color-on-muted)]">
+          <p className="font-[var(--font-data)] text-[11px] font-semibold tracking-[0.12em] uppercase text-on-muted">
             {guardadito.name}
           </p>
-          <p className="font-[var(--font-data)] text-[22px] font-bold tracking-tight leading-tight text-[var(--color-on-surface)]">
+          <p className="font-[var(--font-data)] text-[22px] font-bold tracking-tight leading-tight text-on-surface">
             {guardadito.formattedAmount}
           </p>
           {progress !== null ? (
@@ -70,7 +70,7 @@ export default function GuardaditoCard({ guardadito }: GuardaditoCardProps) {
               aria-valuemin={0}
               aria-valuemax={100}
               aria-label={`${Math.round(progress)}% de la meta alcanzado`}
-              className="mt-2 w-full h-[3px] bg-white/8 rounded-full overflow-hidden"
+              className="mt-2 w-full h-[3px] bg-black/10 dark:bg-white/10 rounded-full overflow-hidden"
             >
               <div
                 className="h-full rounded-full transition-[width] duration-500"
@@ -78,7 +78,7 @@ export default function GuardaditoCard({ guardadito }: GuardaditoCardProps) {
               />
             </div>
           ) : (
-            <div className="mt-2 w-full h-[3px] bg-white/5 rounded-full" aria-hidden="true" />
+            <div className="mt-2 w-full h-[3px] bg-black/5 dark:bg-white/5 rounded-full" aria-hidden="true" />
           )}
         </div>
       </article>

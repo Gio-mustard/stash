@@ -30,8 +30,8 @@ export default function Sidebar({ onFabClick }: SidebarProps) {
       className="
         hidden lg:flex flex-col
         w-64 shrink-0 max-h-svh overflow-hidden
-        bg-[var(--color-surface-1)]
-        border-r border-white/5
+        bg-surface-1
+        border-r border-border
         p-6 sticky top-0
       "
     >
@@ -41,7 +41,7 @@ export default function Sidebar({ onFabClick }: SidebarProps) {
           className="
             font-[var(--font-data)] text-xl font-bold
             tracking-[0.2em] uppercase
-            text-[var(--color-primary)]
+            text-primary
           "
         >
           STASH
@@ -61,8 +61,8 @@ export default function Sidebar({ onFabClick }: SidebarProps) {
                 px-4 py-3 rounded-xl
                 transition-all duration-200
                 ${active
-                  ? "bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-semibold"
-                  : "text-[var(--color-on-dim)] hover:text-[var(--color-on-surface)] hover:bg-white/[0.02]"
+                  ? "bg-primary/10 text-primary font-semibold"
+                  : "text-on-dim hover:text-on-surface hover:bg-white/[0.02]"
                 }
               `}
             >
@@ -73,17 +73,17 @@ export default function Sidebar({ onFabClick }: SidebarProps) {
         })}
       </nav>
 
-      <div className="mt-auto pt-6 border-t border-white/5">
+      <div className="mt-auto pt-6 border-t border-border">
         <Link
-          href="/transaction/new"
+          href="/transaction"
           className="
             w-full flex items-center justify-center gap-2
             h-12 rounded-xl
-            bg-[var(--color-primary-ctr)] text-white
+            bg-primary-ctr text-on-primary
             font-[var(--font-data)] text-[12px] font-bold tracking-[0.1em] uppercase
             shadow-[var(--shadow-fab)]
             transition-all duration-200
-            hover:-translate-y-0.5 hover:bg-[var(--color-primary-mid)]
+            hover:-translate-y-0.5 hover:bg-primary-mid
             hover:shadow-[0_0_24px_rgba(10,77,46,0.5)]
             active:translate-y-0
           "

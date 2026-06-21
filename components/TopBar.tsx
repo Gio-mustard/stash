@@ -35,7 +35,7 @@ export default function TopBar({
         px-6 py-5
         bg-[var(--color-bg)]/80 
         backdrop-blur-md 
-        border-b border-white/5 lg:border-none
+        border-b border-border lg:border-none
         w-full max-w-6xl mx-auto
 
       "
@@ -44,7 +44,7 @@ export default function TopBar({
       <BackBreadcrumb {...breadcrumbOptions} />
       <div className="flex items-center gap-3">
         {avatarUrl ? (
-          <div className="size-9 shrink-0 rounded-full overflow-hidden border-[1.5px] border-[var(--color-primary)]">
+          <div className="size-9 shrink-0 rounded-full overflow-hidden border-[1.5px] border-primary">
             <Image
               src={avatarUrl}
               alt={`Avatar de ${userName}`}
@@ -58,22 +58,22 @@ export default function TopBar({
             aria-label={`Sesión iniciada como ${userName}`}
             className="
               size-9 shrink-0 rounded-full
-              bg-[var(--color-primary-ctr)]
-              border-[1.5px] border-[var(--color-primary)]
+              bg-primary-ctr
+              border-[1.5px] border-primary
               flex items-center justify-center
             "
           >
             <span
               aria-hidden="true"
-              className="text-[14px] font-semibold text-[var(--color-primary)] tracking-wide"
+              className="text-[14px] font-semibold text-primary tracking-wide"
             >
               {initial}
             </span>
           </div>
         )}
-        <span className="hidden lg:inline text-[14px] font-medium text-[var(--color-on-surface)]">
+        <span className="hidden lg:inline text-[14px] font-medium text-on-surface">
           Bienvenido de nuevo,{" "}
-          <span className="font-semibold text-[var(--color-primary)]">{userName}</span>
+          <span className="font-semibold text-primary">{userName}</span>
         </span>
       </div>
 

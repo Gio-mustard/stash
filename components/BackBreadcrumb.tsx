@@ -76,7 +76,7 @@ export default function BackBreadcrumb({
           href={parentHref}
           className="
             font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em]
-            text-[var(--color-primary)] uppercase
+            text-primary uppercase
             hover:opacity-75 transition-opacity
             flex items-center gap-1.5
           "
@@ -85,9 +85,9 @@ export default function BackBreadcrumb({
           <span aria-hidden="true">←</span>
           {pLabel}
         </Link>
-        <span className="text-white/20 text-xs" aria-hidden="true">/</span>
+        <span className="text-on-surface opacity-20 text-xs" aria-hidden="true">/</span>
         <span
-          className="text-xs text-[var(--color-on-dim)] font-medium"
+          className="text-xs text-on-dim font-medium"
           aria-current="page"
         >
           {currentLabel}
@@ -133,7 +133,7 @@ export default function BackBreadcrumb({
         href={backHref}
         className="
           font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em]
-          text-[var(--color-primary)] uppercase
+          text-primary uppercase
           hover:opacity-75 transition-opacity
           flex items-center gap-1.5
           
@@ -145,16 +145,16 @@ export default function BackBreadcrumb({
           <span key={crumb.href} className="flex items-center gap-1.5">
             {crumb.label}
             {idx < parentCrumbs.length - 1 && (
-              <span className="text-white/20 font-normal">/</span>
+              <span className="text-on-surface opacity-20 font-normal">/</span>
             )}
           </span>
         ))}
       </Link>
 
-      <span className="text-white/20 text-xs" aria-hidden="true">/</span>
+      <span className="text-on-surface opacity-20 text-xs" aria-hidden="true">/</span>
 
       <span
-        className="text-xs text-[var(--color-on-dim)] font-medium"
+        className="text-xs text-on-dim font-medium"
         aria-current="page"
       >
         {currentCrumb.label}

@@ -57,8 +57,8 @@ export default function SlidePanel({
         ref={panelRef}
         className={[
           "absolute z-10",
-          "text-[var(--color-on-surface)] bg-[var(--color-surface-3)]",
-          "border-white/5 flex flex-col",
+          "text-on-surface bg-surface-3",
+          "border-border flex flex-col",
           // Mobile: bottom sheet
           "bottom-0 left-0 right-0 max-h-[88dvh] rounded-t-2xl border-t",
           "animate-in slide-in-from-bottom duration-300",
@@ -81,7 +81,7 @@ export default function SlidePanel({
             type="button"
             onClick={onClose}
             aria-label="Cerrar panel"
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-[var(--color-on-dim)] hover:text-[var(--color-on-surface)] hover:bg-white/5 active:scale-90 transition-all"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-on-dim hover:text-on-surface hover:bg-white/5 active:scale-90 transition-all"
           >
             <TranslateIcon iconKey="plus" size={18} className="rotate-45" />
           </button>

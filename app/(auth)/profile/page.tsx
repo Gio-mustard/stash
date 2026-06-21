@@ -72,10 +72,10 @@ export default async function ProfilePage() {
   return (
     <div className="w-full max-w-4xl mx-auto px-6 py-6 pb-[calc(72px+32px)] lg:pb-12 flex flex-col gap-8">
       <div>
-        <h1 className="text-xl font-bold tracking-tight text-[var(--color-on-surface)]">
+        <h1 className="text-xl font-bold tracking-tight text-on-surface">
           Mi Perfil
         </h1>
-        <p className="text-xs text-[var(--color-on-dim)] mt-1">
+        <p className="text-xs text-on-dim mt-1">
           Tu información personal y configuración de cuenta
         </p>
       </div>

@@ -76,29 +76,29 @@ export default function CreateGuardaditoDrawer({
   return (
     <Drawer.Root open={isOpen} onOpenChange={handleOpenChange} direction="right">
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 animate-in fade-in duration-200" />
+        <Drawer.Overlay className="fixed inset-0 bg-overlay backdrop-blur-xs z-50 animate-in fade-in duration-200" />
         <Drawer.Content className="
-          fixed z-50 text-[var(--color-on-surface)] bg-[var(--color-surface-3)] focus:outline-none
-          bottom-0 left-0 right-0 max-h-[90vh] rounded-t-2xl border-t border-white/5 flex flex-col
+          fixed z-50 text-on-surface bg-surface-3 focus:outline-none
+          bottom-0 left-0 right-0 max-h-[90vh] rounded-t-2xl border-t border-border flex flex-col
           sm:top-0 sm:right-0 sm:left-auto sm:bottom-0 sm:w-[420px] sm:max-h-full sm:rounded-l-2xl sm:rounded-tr-none sm:border-l sm:border-t-0
         ">
           <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-white/10 my-4 sm:hidden" />
 
           <div className="flex-1 overflow-y-auto px-6 pb-8 sm:py-8 w-full flex flex-col gap-6">
             <div className="flex items-center justify-between">
-              <Drawer.Title className="text-lg font-semibold tracking-tight text-[var(--color-on-surface)]">
+              <Drawer.Title className="text-lg font-semibold tracking-tight text-on-surface">
                 Nuevo Guardadito
               </Drawer.Title>
-              <Drawer.Close className="text-[var(--color-on-dim)] hover:text-[var(--color-on-surface)] transition-colors">
+              <Drawer.Close className="text-on-dim hover:text-on-surface transition-colors">
                 <TranslateIcon iconKey="plus" size={20} className="rotate-45" />
               </Drawer.Close>
             </div>
 
             {error && (
-              <div className="p-3 rounded-xl bg-red-950/30 border border-red-500/30 text-red-200 text-xs flex items-start gap-2 animate-in fade-in duration-200">
-                <TranslateIcon iconKey="emergency" size={14} className="shrink-0 mt-0.5 text-red-400" />
+              <div className="p-3 rounded-xl bg-error-subtle border border-error-border text-error-text text-xs flex items-start gap-2 animate-in fade-in duration-200">
+                <TranslateIcon iconKey="emergency" size={14} className="shrink-0 mt-0.5 text-error-icon" />
                 <div className="flex-1">
-                  <p className="font-semibold text-red-300">Error</p>
+                  <p className="font-semibold text-error-text">Error</p>
                   <p className="opacity-90">{error}</p>
                 </div>
                 <button type="button" onClick={() => setError(null)} className="opacity-65 hover:opacity-100 transition-opacity">
@@ -109,7 +109,7 @@ export default function CreateGuardaditoDrawer({
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="guardadito-name" className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+                <label htmlFor="guardadito-name" className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
                   Nombre
                 </label>
                 <input
@@ -119,12 +119,12 @@ export default function CreateGuardaditoDrawer({
                   required
                   disabled={isPending}
                   placeholder="ej. Viaje a Japón, Nuevo iPhone…"
-                  className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+                  className="h-11 w-full rounded-xl bg-surface-2 border border-border px-4 text-sm text-on-surface focus:outline-none focus:border-primary transition-all"
                 />
               </div>
 
               <div className="flex flex-col gap-2">
-                <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+                <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
                   Ícono
                 </span>
                 <div className="grid grid-cols-5 gap-2">
@@ -137,8 +137,8 @@ export default function CreateGuardaditoDrawer({
                       className={`
                         flex flex-col items-center gap-1 p-2 rounded-xl border transition-all duration-200
                         ${selectedIcon === key
-                          ? "bg-[var(--color-primary)]/10 border-[var(--color-primary)] text-[var(--color-primary)]"
-                          : "bg-[var(--color-surface-2)] border-white/5 text-[var(--color-on-dim)] hover:border-white/15 hover:text-[var(--color-on-surface)]"
+                          ? "bg-primary/10 border-primary text-primary"
+                          : "bg-surface-2 border-border text-on-dim hover:border-white/15 hover:text-on-surface"
                         }
                       `}
                     >
@@ -153,13 +153,13 @@ export default function CreateGuardaditoDrawer({
 
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
-                  <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+                  <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
                     Meta de Ahorro (opcional)
                   </label>
                   <button
                     type="button"
                     onClick={() => setHasTarget((p) => !p)}
-                    className="text-[10px] text-[var(--color-primary)] font-semibold hover:opacity-75 transition-opacity"
+                    className="text-[10px] text-primary font-semibold hover:opacity-75 transition-opacity"
                   >
                     {hasTarget ? "Sin meta" : "Agregar meta"}
                   </button>
@@ -172,13 +172,13 @@ export default function CreateGuardaditoDrawer({
                     min="0"
                     disabled={isPending}
                     placeholder="0.00"
-                    className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+                    className="h-11 w-full rounded-xl bg-surface-2 border border-border px-4 text-sm text-on-surface focus:outline-none focus:border-primary transition-all"
                   />
                 )}
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label htmlFor="guardadito-initial" className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+                <label htmlFor="guardadito-initial" className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
                   Monto inicial (opcional)
                 </label>
                 <input
@@ -189,14 +189,14 @@ export default function CreateGuardaditoDrawer({
                   min="0"
                   disabled={isPending}
                   placeholder="0.00"
-                  className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+                  className="h-11 w-full rounded-xl bg-surface-2 border border-border px-4 text-sm text-on-surface focus:outline-none focus:border-primary transition-all"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isPending}
-                className="h-12 w-full mt-2 rounded-xl bg-[var(--color-primary-ctr)] text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase shadow-[var(--shadow-fab)] transition-all hover:-translate-y-0.5 hover:bg-[var(--color-primary-mid)] active:translate-y-0 disabled:opacity-50"
+                className="h-12 w-full mt-2 rounded-xl bg-primary-ctr text-on-primary font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase shadow-[var(--shadow-fab)] transition-all hover:-translate-y-0.5 hover:bg-primary-mid active:translate-y-0 disabled:opacity-50"
               >
                 {isPending ? "Creando..." : "Crear Guardadito"}
               </button>

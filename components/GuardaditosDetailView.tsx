@@ -255,22 +255,22 @@ export default function GuardaditosDetailView({
           {/* Header Card / Progress */}
           <div
             style={{ background: theme.gradient, boxShadow: `0 0 30px ${theme.glowColor}` }}
-            className="pinstripe relative overflow-hidden rounded-2xl p-6 border border-white/5 flex flex-col gap-6"
+            className="pinstripe relative overflow-hidden rounded-2xl p-6 border border-border flex flex-col gap-6"
           >
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 z-10">
               <div className="flex flex-col">
-                <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] text-[var(--color-on-muted)] uppercase">
+                <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] text-on-muted uppercase">
                   Ahorrado actualmente
                 </span>
-                <span className="text-4xl font-extrabold text-[var(--color-on-surface)] tracking-tight mt-1">
+                <span className="text-4xl font-extrabold text-on-surface tracking-tight mt-1">
                   ${Number(guardadito.current).toLocaleString("en-US", { minimumFractionDigits: 2 })}
                 </span>
               </div>
               <div className="flex flex-col md:items-end">
-                <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] text-[var(--color-on-muted)] uppercase">
+                <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] text-on-muted uppercase">
                   Meta de ahorro
                 </span>
-                <span className="text-xl font-semibold text-[var(--color-on-surface)] mt-1">
+                <span className="text-xl font-semibold text-on-surface mt-1">
                   {guardadito.target !== null
                     ? `$${Number(guardadito.target).toLocaleString("en-US", { minimumFractionDigits: 2 })}`
                     : "Sin meta"}
@@ -280,7 +280,7 @@ export default function GuardaditosDetailView({
 
             {guardadito.target !== null ? (
               <div className="flex flex-col gap-2 z-10">
-                <div className="flex justify-between text-xs text-[var(--color-on-dim)] font-[var(--font-data)]">
+                <div className="flex justify-between text-xs text-on-dim font-[var(--font-data)]">
                   <span>{progressPercent.toFixed(1)}% completado</span>
                   <span>Restan: ${Math.max(0, guardadito.target - guardadito.current).toLocaleString("en-US")}</span>
                 </div>
@@ -295,8 +295,8 @@ export default function GuardaditosDetailView({
           </div>
 
           {/* SVG Progression Chart */}
-          <section className="bg-[var(--color-surface-1)] border border-white/5 rounded-2xl p-6 flex flex-col gap-4">
-            <h2 className="text-sm font-semibold tracking-tight text-[var(--color-on-surface)]">
+          <section className="bg-surface-1 border border-border rounded-2xl p-6 flex flex-col gap-4">
+            <h2 className="text-sm font-semibold tracking-tight text-on-surface">
               Progreso Histórico
             </h2>
             {plotPoints.length > 1 ? (
@@ -448,26 +448,26 @@ export default function GuardaditosDetailView({
                 </svg>
               </div>
             ) : (
-              <div className="h-[120px] flex items-center justify-center border border-dashed border-white/5 rounded-xl text-xs text-[var(--color-on-dim)]">
+              <div className="h-[120px] flex items-center justify-center border border-dashed border-border rounded-xl text-xs text-on-dim">
                 Agrega transacciones o depósitos para ver tu progreso en el tiempo.
               </div>
             )}
           </section>
 
           {/* Quick Deposit Actions */}
-          <section className="bg-[var(--color-surface-2)] border border-white/5 rounded-2xl p-6 flex flex-col gap-4">
+          <section className="bg-surface-2 border border-border rounded-2xl p-6 flex flex-col gap-4">
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="text-sm font-semibold tracking-tight text-[var(--color-on-surface)]">
+                <h2 className="text-sm font-semibold tracking-tight text-on-surface">
                   Ingresar Dinero (Ahorrar)
                 </h2>
-                <p className="text-[11px] text-[var(--color-on-dim)] mt-0.5">
+                <p className="text-[11px] text-on-dim mt-0.5">
                   Añade fondos directamente a este guardadito
                 </p>
               </div>
               <button
                 onClick={() => setIsDepositOpen(true)}
-                className="h-10 px-5 rounded-xl bg-[var(--color-primary-ctr)] text-white text-xs font-bold tracking-widest uppercase hover:-translate-y-0.5 active:translate-y-0 transition-all"
+                className="h-10 px-5 rounded-xl bg-primary-ctr text-on-primary text-xs font-bold tracking-widest uppercase hover:-translate-y-0.5 active:translate-y-0 transition-all"
               >
                 Depositar
               </button>
@@ -475,13 +475,13 @@ export default function GuardaditosDetailView({
           </section>
 
           {/* Notes & Links Form */}
-          <section className="bg-[var(--color-surface-2)] border border-white/5 rounded-2xl p-6">
-            <h2 className="text-sm font-semibold tracking-tight text-[var(--color-on-surface)] mb-4">
+          <section className="bg-surface-2 border border-border rounded-2xl p-6">
+            <h2 className="text-sm font-semibold tracking-tight text-on-surface mb-4">
               Notas y Enlaces
             </h2>
             <form onSubmit={handleSaveDetails} className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+                <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
                   Notas sobre tu meta
                 </label>
                 <textarea
@@ -490,12 +490,12 @@ export default function GuardaditosDetailView({
                   placeholder="Escribe detalles como el modelo del auto, fechas estimadas, o planes de viaje..."
                   rows={3}
                   disabled={isPending}
-                  className="w-full rounded-xl bg-[var(--color-surface-3)] border border-white/5 p-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all resize-none"
+                  className="w-full rounded-xl bg-surface-3 border border-border p-4 text-sm text-on-surface focus:outline-none focus:border-primary transition-all resize-none"
                 />
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+                <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
                   Enlace externo (ej. tienda, cotización)
                 </label>
                 <div className="flex gap-2">
@@ -505,14 +505,14 @@ export default function GuardaditosDetailView({
                     onChange={(e) => setLink(e.target.value)}
                     placeholder="https://example.com/item"
                     disabled={isPending}
-                    className="flex-1 h-11 rounded-xl bg-[var(--color-surface-3)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+                    className="flex-1 h-11 rounded-xl bg-surface-3 border border-border px-4 text-sm text-on-surface focus:outline-none focus:border-primary transition-all"
                   />
                   {guardadito.link && (
                     <a
                       href={guardadito.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="h-11 w-11 rounded-xl bg-[var(--color-surface-3)] flex items-center justify-center border border-white/5 hover:text-[var(--color-primary)] transition-colors"
+                      className="h-11 w-11 rounded-xl bg-surface-3 flex items-center justify-center border border-border hover:text-primary transition-colors"
                       title="Visitar enlace"
                     >
                       <TranslateIcon iconKey="plane" size={16} />
@@ -523,14 +523,14 @@ export default function GuardaditosDetailView({
 
               <div className="flex justify-end items-center gap-3">
                 {isSaved && (
-                  <span className="text-xs text-[var(--color-primary)] animate-pulse">
+                  <span className="text-xs text-primary animate-pulse">
                     ¡Guardado con éxito!
                   </span>
                 )}
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="h-10 px-5 rounded-xl bg-[var(--color-surface-3)] border border-white/10 hover:border-white/20 text-xs font-semibold tracking-wider hover:-translate-y-0.5 active:translate-y-0 transition-all text-[var(--color-on-surface)] disabled:opacity-50"
+                  className="h-10 px-5 rounded-xl bg-surface-3 border border-white/10 hover:border-white/20 text-xs font-semibold tracking-wider hover:-translate-y-0.5 active:translate-y-0 transition-all text-on-surface disabled:opacity-50"
                 >
                   Guardar Detalles
                 </button>
@@ -539,8 +539,8 @@ export default function GuardaditosDetailView({
           </section>
 
           {/* Historical Logs List */}
-          <section className="bg-[var(--color-surface-1)] border border-white/5 rounded-2xl p-6 flex flex-col gap-4">
-            <h2 className="text-sm font-semibold tracking-tight text-[var(--color-on-surface)]">
+          <section className="bg-surface-1 border border-border rounded-2xl p-6 flex flex-col gap-4">
+            <h2 className="text-sm font-semibold tracking-tight text-on-surface">
               Movimientos del Guardadito
             </h2>
             <div className="flex flex-col gap-3">
@@ -548,13 +548,13 @@ export default function GuardaditosDetailView({
                 transactions.map((tx) => (
                   <div
                     key={tx.id}
-                    className="flex items-center justify-between p-3 rounded-xl bg-[var(--color-surface-2)]/60 border border-white/5"
+                    className="flex items-center justify-between p-3 rounded-xl bg-surface-2/60 border border-border"
                   >
                     <div className="flex flex-col">
-                      <span className="text-xs font-semibold text-[var(--color-on-surface)]">
+                      <span className="text-xs font-semibold text-on-surface">
                         {tx.title}
                       </span>
-                      <span className="text-[10px] text-[var(--color-on-dim)] font-[var(--font-data)]">
+                      <span className="text-[10px] text-on-dim font-[var(--font-data)]">
                         {new Date(tx.created_at).toLocaleDateString("es-MX", {
                           day: "numeric",
                           month: "short",
@@ -565,7 +565,7 @@ export default function GuardaditosDetailView({
                     </div>
                     <span
                       className={`text-xs font-bold font-[var(--font-data)] ${
-                        tx.is_positive ? "text-[var(--color-error)]" : "text-[var(--color-primary)]"
+                        tx.is_positive ? "text-error" : "text-primary"
                       }`}
                     >
                       {tx.is_positive ? "-" : "+"}${Number(tx.amount).toFixed(2)}
@@ -573,7 +573,7 @@ export default function GuardaditosDetailView({
                   </div>
                 ))
               ) : (
-                <div className="text-center py-6 text-xs text-[var(--color-on-dim)]">
+                <div className="text-center py-6 text-xs text-on-dim">
                   No hay transacciones registradas para este guardadito.
                 </div>
               )}
@@ -581,17 +581,17 @@ export default function GuardaditosDetailView({
           </section>
 
           {/* Hidden withdraw option at the bottom */}
-          <div className="mt-12 pt-8 border-t border-white/5 flex flex-wrap justify-center gap-6">
+          <div className="mt-12 pt-8 border-t border-border flex flex-wrap justify-center gap-6">
             <button
               onClick={() => setIsWithdrawOpen(true)}
-              className="text-xs font-bold tracking-widest text-red-400/60 hover:text-red-300 transition-colors uppercase"
+              className="text-xs font-bold tracking-widest text-error-text opacity-60 hover:text-error-text transition-colors uppercase"
             >
               Quitar Dinero
             </button>
-            <span className="text-white/10 hidden sm:inline">|</span>
+            <span className="text-on-surface opacity-10 hidden sm:inline">|</span>
             <button
               onClick={() => setIsDeleteOpen(true)}
-              className="text-xs font-bold tracking-widest text-red-500 hover:text-red-400 transition-colors uppercase"
+              className="text-xs font-bold tracking-widest text-error-icon hover:text-error-icon transition-colors uppercase"
             >
               Eliminar Guardadito
             </button>
@@ -605,10 +605,10 @@ export default function GuardaditosDetailView({
         title={`Depositar en ${guardadito.name}`}
       >
         {depositError && (
-          <div className="p-3 rounded-xl bg-red-950/30 border border-red-500/30 text-red-200 text-xs flex items-start gap-2 animate-in fade-in duration-200">
-            <TranslateIcon iconKey="emergency" size={14} className="shrink-0 mt-0.5 text-red-400" />
+          <div className="p-3 rounded-xl bg-error-subtle border border-error-border text-error-text text-xs flex items-start gap-2 animate-in fade-in duration-200">
+            <TranslateIcon iconKey="emergency" size={14} className="shrink-0 mt-0.5 text-error-icon" />
             <div className="flex-1">
-              <p className="font-semibold text-red-300">Error</p>
+              <p className="font-semibold text-error-text">Error</p>
               <p className="opacity-90">{depositError}</p>
             </div>
             <button type="button" onClick={() => setDepositError(null)} className="opacity-65 hover:opacity-100 transition-opacity">
@@ -619,10 +619,10 @@ export default function GuardaditosDetailView({
         <form onSubmit={handleDepositSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <div className="flex justify-between items-center">
-              <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+              <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
                 Cantidad a ahorrar ($)
               </label>
-              <span className="text-[10px] text-[var(--color-on-dim)] font-semibold">
+              <span className="text-[10px] text-on-dim font-semibold">
                 Disponible: ${walletBalance.toLocaleString("en-US", { minimumFractionDigits: 2 })}
               </span>
             </div>
@@ -634,13 +634,13 @@ export default function GuardaditosDetailView({
               onChange={(e) => { setDepositAmount(e.target.value); setDepositError(null); }}
               placeholder="0.00"
               disabled={isPending}
-              className="h-11 w-full rounded-lg bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+              className="h-11 w-full rounded-lg bg-surface-2 border border-border px-4 text-sm text-on-surface focus:outline-none focus:border-primary transition-all"
             />
           </div>
           <button
             type="submit"
             disabled={isPending}
-            className="h-11 w-full mt-2 rounded-xl bg-[var(--color-primary-ctr)] text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50"
+            className="h-11 w-full mt-2 rounded-xl bg-primary-ctr text-on-primary font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50"
           >
             Confirmar Depósito
           </button>
@@ -652,16 +652,16 @@ export default function GuardaditosDetailView({
         open={isWithdrawOpen}
         onClose={() => { setWithdrawError(null); setIsWithdrawOpen(false); }}
         title={`Retirar de ${guardadito.name}`}
-        titleClassName="text-red-300"
+        titleClassName="text-error-text"
       >
-        <div className="bg-red-950/20 border border-red-900/30 p-3 rounded-lg text-xs text-red-200 leading-relaxed">
+        <div className="bg-error-subtle border border-error-border p-3 rounded-lg text-xs text-error-text leading-relaxed">
           ⚠️ <strong>Advertencia:</strong> Retirar dinero restará saldo de tus ahorros y lo devolverá a tu saldo general disponible.
         </div>
         {withdrawError && (
-          <div className="p-3 rounded-xl bg-red-950/30 border border-red-500/30 text-red-200 text-xs flex items-start gap-2 animate-in fade-in duration-200">
-            <TranslateIcon iconKey="emergency" size={14} className="shrink-0 mt-0.5 text-red-400" />
+          <div className="p-3 rounded-xl bg-error-subtle border border-error-border text-error-text text-xs flex items-start gap-2 animate-in fade-in duration-200">
+            <TranslateIcon iconKey="emergency" size={14} className="shrink-0 mt-0.5 text-error-icon" />
             <div className="flex-1">
-              <p className="font-semibold text-red-300">Error</p>
+              <p className="font-semibold text-error-text">Error</p>
               <p className="opacity-90">{withdrawError}</p>
             </div>
             <button type="button" onClick={() => setWithdrawError(null)} className="opacity-65 hover:opacity-100 transition-opacity">
@@ -672,10 +672,10 @@ export default function GuardaditosDetailView({
         <form onSubmit={handleWithdrawSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <div className="flex justify-between items-center">
-              <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+              <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
                 Cantidad a retirar ($)
               </label>
-              <span className="text-[10px] text-[var(--color-on-dim)] font-semibold">
+              <span className="text-[10px] text-on-dim font-semibold">
                 Disponible: ${guardadito.current.toLocaleString("en-US", { minimumFractionDigits: 2 })}
               </span>
             </div>
@@ -687,13 +687,13 @@ export default function GuardaditosDetailView({
               onChange={(e) => { setWithdrawAmount(e.target.value); setWithdrawError(null); }}
               placeholder="0.00"
               disabled={isPending}
-              className="h-11 w-full rounded-lg bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-red-500/50 transition-all"
+              className="h-11 w-full rounded-lg bg-surface-2 border border-border px-4 text-sm text-on-surface focus:outline-none focus:border-error-border transition-all"
             />
           </div>
           <button
             type="submit"
             disabled={isPending}
-            className="h-11 w-full mt-2 rounded-xl bg-red-900 text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50 hover:bg-red-800"
+            className="h-11 w-full mt-2 rounded-xl bg-error-btn text-on-primary font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50 hover:bg-error-btn-hover"
           >
             Confirmar Retiro
           </button>
@@ -705,16 +705,16 @@ export default function GuardaditosDetailView({
         open={isDeleteOpen}
         onClose={() => setIsDeleteOpen(false)}
         title={`Eliminar ${guardadito.name}`}
-        titleClassName="text-red-400"
+        titleClassName="text-error-icon"
       >
-        <div className="bg-red-950/20 border border-red-900/30 p-4 rounded-lg text-xs text-red-200 leading-relaxed flex flex-col gap-2">
-          <span className="font-bold text-red-300">⚠️ ¡Atención! Esta acción no se puede deshacer.</span>
+        <div className="bg-error-subtle border border-error-border p-4 rounded-lg text-xs text-error-text leading-relaxed flex flex-col gap-2">
+          <span className="font-bold text-error-text">⚠️ ¡Atención! Esta acción no se puede deshacer.</span>
           <span>Se eliminará de forma permanente el guardadito y el saldo ahorrado se devolverá a tu saldo general.</span>
         </div>
         <form onSubmit={handleDeleteSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
-              Para confirmar, escribe <span className="text-white select-all font-mono">eliminar {guardadito.name}</span>
+            <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
+              Para confirmar, escribe <span className="text-on-primary select-all font-mono">eliminar {guardadito.name}</span>
             </label>
             <input
               type="text"
@@ -723,13 +723,13 @@ export default function GuardaditosDetailView({
               onChange={(e) => setConfirmDeleteText(e.target.value)}
               placeholder={`eliminar ${guardadito.name}`}
               disabled={isPending}
-              className="h-11 w-full rounded-lg bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-red-500/50 transition-all font-mono"
+              className="h-11 w-full rounded-lg bg-surface-2 border border-border px-4 text-sm text-on-surface focus:outline-none focus:border-error-border transition-all font-mono"
             />
           </div>
           <button
             type="submit"
             disabled={isPending || confirmDeleteText !== `eliminar ${guardadito.name}`}
-            className="h-11 w-full mt-2 rounded-xl bg-red-700 hover:bg-red-600 disabled:bg-red-950/40 text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="h-11 w-full mt-2 rounded-xl bg-error-btn hover:bg-error-btn-hover disabled:bg-error-subtle text-on-primary font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Eliminar Definitivamente
           </button>

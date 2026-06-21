@@ -52,8 +52,8 @@ export default function WalletView({
             className="
               relative overflow-hidden
               flex flex-col gap-4
-              bg-[var(--color-surface-1)]
-              border border-white/5
+              bg-surface-1
+              border border-border
               rounded-2xl p-6 sm:p-8
               balance-shimmer
               w-full
@@ -63,37 +63,37 @@ export default function WalletView({
             <div className="absolute -bottom-32 left-0 w-64 h-52 bg-primary-ctr blur-3xl opacity-20 pointer-events-none" />
 
             <div>
-              <p className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.15em] uppercase text-[var(--color-on-dim)]">
+              <p className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.15em] uppercase text-on-dim">
                 Patrimonio Total Estimado
               </p>
-              <h1 className="font-[var(--font-data)] text-4xl sm:text-5xl font-extrabold tracking-tight mt-1 text-[var(--color-on-surface)] leading-none">
+              <h1 className="font-[var(--font-data)] text-4xl sm:text-5xl font-extrabold tracking-tight mt-1 text-on-surface leading-none">
                 {formattedGeneral}
               </h1>
             </div>
 
             {/* Breakdown row */}
-            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/5 mt-2 z-10 text-[var(--color-on-muted)]">
+            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border mt-2 z-10 text-on-muted">
               <div>
-                <p className="text-[10px] font-semibold tracking-wider uppercase text-[var(--color-on-dim)]">
+                <p className="text-[10px] font-semibold tracking-wider uppercase text-on-dim">
                   Billetera
                 </p>
-                <p className="font-[var(--font-data)] text-sm sm:text-base font-bold text-[var(--color-on-surface)] mt-0.5">
+                <p className="font-[var(--font-data)] text-sm sm:text-base font-bold text-on-surface mt-0.5">
                   ${walletBalance.toLocaleString("es-MX", { minimumFractionDigits: 2 })}
                 </p>
               </div>
               <div>
-                <p className="text-[10px] font-semibold tracking-wider uppercase text-[var(--color-on-dim)]">
+                <p className="text-[10px] font-semibold tracking-wider uppercase text-on-dim">
                   Pockets
                 </p>
-                <p className="font-[var(--font-data)] text-sm sm:text-base font-bold text-[var(--color-on-surface)] mt-0.5">
+                <p className="font-[var(--font-data)] text-sm sm:text-base font-bold text-on-surface mt-0.5">
                   ${pocketsTotal.toLocaleString("es-MX", { minimumFractionDigits: 2 })}
                 </p>
               </div>
               <div>
-                <p className="text-[10px] font-semibold tracking-wider uppercase text-[var(--color-on-dim)]">
+                <p className="text-[10px] font-semibold tracking-wider uppercase text-on-dim">
                   Guardaditos
                 </p>
-                <p className="font-[var(--font-data)] text-sm sm:text-base font-bold text-[var(--color-on-surface)] mt-0.5">
+                <p className="font-[var(--font-data)] text-sm sm:text-base font-bold text-on-surface mt-0.5">
                   ${guardaditosTotal.toLocaleString("es-MX", { minimumFractionDigits: 2 })}
                 </p>
               </div>
@@ -104,10 +104,10 @@ export default function WalletView({
           <section className="flex flex-col gap-4">
             <div className="flex justify-between items-center">
               <div>
-                <h2 className="text-base font-bold tracking-tight text-[var(--color-on-surface)]">
+                <h2 className="text-base font-bold tracking-tight text-on-surface">
                   Tus Pockets / Tarjetas
                 </h2>
-                <p className="text-xs text-[var(--color-on-dim)] mt-0.5">
+                <p className="text-xs text-on-dim mt-0.5">
                   Tus cuentas bancarias, tarjetas o efectivo físico.
                 </p>
               </div>
@@ -122,7 +122,7 @@ export default function WalletView({
                 </Link>
                 <button
                   onClick={() => setIsCreateOpen(true)}
-                  className="h-9 px-4 rounded-xl bg-[var(--color-primary-ctr)] text-white text-xs font-bold tracking-wide uppercase flex items-center gap-1 hover:bg-[var(--color-primary-mid)] active:scale-95 transition-all"
+                  className="h-9 px-4 rounded-xl bg-primary-ctr text-on-primary text-xs font-bold tracking-wide uppercase flex items-center gap-1 hover:bg-primary-mid active:scale-95 transition-all"
                 >
                   <TranslateIcon iconKey="plus" size={14} />
                   <span>Crear</span>
@@ -137,19 +137,19 @@ export default function WalletView({
                 ))}
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center border border-dashed border-white/5 rounded-2xl p-12 text-center mt-2 bg-[var(--color-surface-1)]">
-                <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-[var(--color-on-dim)] mb-4">
+              <div className="flex flex-col items-center justify-center border border-dashed border-border rounded-2xl p-12 text-center mt-2 bg-surface-1">
+                <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-on-dim mb-4">
                   <TranslateIcon iconKey="creditCard" size={24} />
                 </div>
-                <h3 className="text-sm font-semibold text-[var(--color-on-surface)]">
+                <h3 className="text-sm font-semibold text-on-surface">
                   No hay pockets registrados
                 </h3>
-                <p className="text-xs text-[var(--color-on-dim)] max-w-xs mt-1 leading-normal">
+                <p className="text-xs text-on-dim max-w-xs mt-1 leading-normal">
                   Crea una tarjeta para comenzar a gestionar tu dinero en bancos o efectivo de forma independiente.
                 </p>
                 <button
                   onClick={() => setIsCreateOpen(true)}
-                  className="h-10 px-5 mt-5 rounded-xl bg-[var(--color-primary-ctr)] text-white text-xs font-bold tracking-wider uppercase hover:-translate-y-0.5 active:translate-y-0 transition-all"
+                  className="h-10 px-5 mt-5 rounded-xl bg-primary-ctr text-on-primary text-xs font-bold tracking-wider uppercase hover:-translate-y-0.5 active:translate-y-0 transition-all"
                 >
                   Crear primera tarjeta
                 </button>

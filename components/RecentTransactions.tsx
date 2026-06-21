@@ -21,14 +21,14 @@ export default function RecentTransactions({
     >
       <h2
         id="transactions-heading"
-        className="text-[18px] font-semibold tracking-tight text-[var(--color-on-surface)] mb-0"
+        className="text-[18px] font-semibold tracking-tight text-on-surface mb-0"
       >
         Transacciones Recientes
       </h2>
 
       <ul
         aria-label="Transacciones recientes"
-        className="border-t border-white/5 mt-4"
+        className="border-t border-border mt-4"
       >
         {transactions.map((tx) => (
           <TransactionItem key={tx.id} transaction={tx} />

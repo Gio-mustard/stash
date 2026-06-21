@@ -27,8 +27,8 @@ const CREATE_OPTIONS = [
     label: "Gasto",
     description: "Registra un gasto del saldo",
     iconKey: "minus",
-    iconColor: "text-red-400",
-    bgColor: "bg-red-950/30 border-red-500/20",
+    iconColor: "text-error-icon",
+    bgColor: "bg-error-subtle border-error-border",
     action: "expense" as const,
   },
   {
@@ -36,8 +36,8 @@ const CREATE_OPTIONS = [
     label: "Ingreso",
     description: "Agrega dinero a tu billetera",
     iconKey: "plus",
-    iconColor: "text-[var(--color-primary)]",
-    bgColor: "bg-[var(--color-primary)]/10 border-[var(--color-primary)]/20",
+    iconColor: "text-primary",
+    bgColor: "bg-primary/10 border-primary/20",
     action: "income" as const,
   },
   {
@@ -45,8 +45,8 @@ const CREATE_OPTIONS = [
     label: "Guardadito",
     description: "Nueva meta de ahorro",
     iconKey: "piggybank",
-    iconColor: "text-yellow-400",
-    bgColor: "bg-yellow-950/20 border-yellow-500/20",
+    iconColor: "text-warning-icon",
+    bgColor: "bg-warning-subtle border-warning-border",
     action: "guardadito" as const,
   },
   {
@@ -54,8 +54,8 @@ const CREATE_OPTIONS = [
     label: "Pocket / Tarjeta",
     description: "Nueva cuenta o tarjeta",
     iconKey: "creditCard",
-    iconColor: "text-blue-400",
-    bgColor: "bg-blue-950/20 border-blue-500/20",
+    iconColor: "text-info-icon",
+    bgColor: "bg-info-subtle border-info-border",
     action: "pocket" as const,
   },
 ] as const;
@@ -87,11 +87,11 @@ export default function BottomNav({ onCreateAction }: BottomNavProps) {
   const handleCreateOption = (action: CreateAction) => {
     setIsFabOpen(false);
     if (action === "expense") {
-      router.push("/transaction/new?type=EXPENSE");
+      router.push("/transaction?type=EXPENSE");
       return;
     }
     if (action === "income") {
-      router.push("/transaction/new?type=INCOME");
+      router.push("/transaction?type=INCOME");
       return;
     }
     if (action === "pocket") {
@@ -112,7 +112,7 @@ export default function BottomNav({ onCreateAction }: BottomNavProps) {
           fixed bottom-0 left-0 right-0 z-20
           lg:hidden
           h-[72px]
-          bg-[var(--color-surface-1)] border-t border-white/5
+          bg-surface-1 border-t border-border
           backdrop-blur-xl
           flex items-center justify-around
           px-6
@@ -133,8 +133,8 @@ export default function BottomNav({ onCreateAction }: BottomNavProps) {
                 size-11 rounded-full
                 transition-colors duration-200
                 ${active
-                  ? "text-[var(--color-primary)]"
-                  : "text-[var(--color-on-dim)] hover:text-[var(--color-on-muted)]"
+                  ? "text-primary"
+                  : "text-on-dim hover:text-on-muted"
                 }
               `}
             >
@@ -153,16 +153,16 @@ export default function BottomNav({ onCreateAction }: BottomNavProps) {
             -mt-5 shrink-0
             flex items-center justify-center
             size-16 rounded-full
-            bg-[var(--color-primary-ctr)] text-white
+            bg-primary-ctr text-on-primary
             shadow-[var(--shadow-fab)]
             transition-all duration-200
             hover:scale-[1.08] hover:-translate-y-0.5
             hover:shadow-[0_0_36px_rgba(10,77,46,0.6),0_6px_20px_rgba(0,0,0,0.7)]
-            hover:bg-[var(--color-primary-mid)]
+            hover:bg-primary-mid
             active:scale-[0.97] active:translate-y-0
           "
         >
-          <TranslateIcon iconKey="plus" size={24} className="text-white" />
+          <TranslateIcon iconKey="plus" size={24} className="text-on-primary" />
         </button>
 
         {NAV_ITEMS.slice(2).map((item) => {
@@ -180,8 +180,8 @@ export default function BottomNav({ onCreateAction }: BottomNavProps) {
                 size-11 rounded-full
                 transition-colors duration-200
                 ${active
-                  ? "text-[var(--color-primary)]"
-                  : "text-[var(--color-on-dim)] hover:text-[var(--color-on-muted)]"
+                  ? "text-primary"
+                  : "text-on-dim hover:text-on-muted"
                 }
               `}
             >
@@ -199,8 +199,8 @@ export default function BottomNav({ onCreateAction }: BottomNavProps) {
             className="
               fixed z-50 bottom-0 left-0 right-0
               lg:hidden
-              bg-[var(--color-surface-2)]
-              rounded-t-2xl border-t border-white/5
+              bg-surface-2
+              rounded-t-2xl border-t border-border
               flex flex-col
               pb-[calc(72px+env(safe-area-inset-bottom,0px))]
               focus:outline-none
@@ -210,7 +210,7 @@ export default function BottomNav({ onCreateAction }: BottomNavProps) {
             <div className="mx-auto w-12 h-1.5 rounded-full bg-white/10 my-4 shrink-0" />
 
             <div className="px-5 pb-2 flex flex-col gap-3">
-              <Drawer.Title className="text-xs font-bold tracking-[0.12em] uppercase text-[var(--color-on-dim)]">
+              <Drawer.Title className="text-xs font-bold tracking-[0.12em] uppercase text-on-dim">
                 Crear nuevo
               </Drawer.Title>
 
@@ -233,10 +233,10 @@ export default function BottomNav({ onCreateAction }: BottomNavProps) {
                       <TranslateIcon iconKey={opt.iconKey} size={22} className="text-current" />
                     </div>
                     <div className="flex flex-col min-w-0">
-                      <span className="text-sm font-semibold text-[var(--color-on-surface)] leading-tight">
+                      <span className="text-sm font-semibold text-on-surface leading-tight">
                         {opt.label}
                       </span>
-                      <span className="text-[10px] text-[var(--color-on-dim)] leading-tight mt-0.5 truncate">
+                      <span className="text-[10px] text-on-dim leading-tight mt-0.5 truncate">
                         {opt.description}
                       </span>
                     </div>

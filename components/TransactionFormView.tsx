@@ -177,10 +177,10 @@ export default function TransactionFormView({
       
         <main className="overflow-y-auto w-full max-w-2xl mx-auto flex flex-col gap-6">
           {errorMessage && (
-            <div className="p-4 rounded-xl bg-red-950/30 border border-red-500/30 text-red-200 text-xs flex items-start gap-2 animate-in fade-in duration-200">
-              <TranslateIcon iconKey="emergency" size={14} className="shrink-0 mt-0.5 text-red-400" />
+            <div className="p-4 rounded-xl bg-error-subtle border border-error-border text-error-text text-xs flex items-start gap-2 animate-in fade-in duration-200">
+              <TranslateIcon iconKey="emergency" size={14} className="shrink-0 mt-0.5 text-error-icon" />
               <div className="flex-1">
-                <p className="font-semibold text-red-300">Error</p>
+                <p className="font-semibold text-error-text">Error</p>
                 <p className="opacity-90">{errorMessage}</p>
               </div>
               <button type="button" onClick={() => setErrorMessage(null)} className="opacity-65 hover:opacity-100 transition-opacity">
@@ -192,7 +192,24 @@ export default function TransactionFormView({
           <form onSubmit={handleSubmit} className="flex flex-col gap-6 p-6 ">
           {/* Expense/Income Toggle */}
           <div className="flex items-center justify-center">
-            <div className="flex rounded-full bg-[var(--color-surface-2)] p-1 gap-1 w-full max-w-[240px]">
+            <div className="relative flex rounded-full bg-surface-2 p-1 w-full max-w-[240px]">
+              {/* Sliding pill */}
+              <span
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  top: 4,
+                  bottom: 4,
+                  left: 4,
+                  width: "calc(50% - 4px)",
+                  borderRadius: "9999px",
+                  transform: txType === "INCOME" ? "translateX(100%)" : "translateX(0%)",
+                  transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                  background: "var(--color-primary-ctr, #1a5c2a)",
+                  boxShadow: "0 1px 4px rgba(0,0,0,0.25)",
+                  pointerEvents: "none",
+                }}
+              />
               {(["EXPENSE", "INCOME"] as const).map((t) => (
                 <button
                   key={t}
@@ -202,11 +219,9 @@ export default function TransactionFormView({
                     setErrorMessage(null);
                   }}
                   className={`
-                    flex-1 h-9 rounded-full text-[11px] font-bold tracking-widest uppercase transition-all duration-200
-                    ${txType === t
-                      ? "bg-[var(--color-primary-ctr)] text-white shadow-sm"
-                      : "text-[var(--color-on-dim)] hover:text-[var(--color-on-surface)]"
-                    }
+                    relative z-10 flex-1 h-9 rounded-full text-[11px] font-bold tracking-widest uppercase
+                    transition-colors duration-200
+                    ${txType === t ? "text-on-primary" : "text-on-dim hover:text-on-surface"}
                   `}
                 >
                   {t === "EXPENSE" ? "Gasto" : "Ingreso"}
@@ -216,12 +231,12 @@ export default function TransactionFormView({
           </div>
 
           {/* Amount Input */}
-          <div className="text-center bg-[var(--color-surface-2)]/30 rounded-2xl p-5 border border-white/5">
-            <p className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.15em] uppercase text-[var(--color-on-dim)] mb-2">
+          <div className="text-center bg-surface-2/30 rounded-2xl p-5 border border-border">
+            <p className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.15em] uppercase text-on-dim mb-2">
               Monto
             </p>
             <div className="flex items-center justify-center gap-3">
-              <span className="font-[var(--font-data)] text-[36px] font-bold text-[var(--color-primary)]">$</span>
+              <span className="font-[var(--font-data)] text-[36px] font-bold text-primary">$</span>
               <input
                 name="amount"
                 type="number"
@@ -236,7 +251,7 @@ export default function TransactionFormView({
                 }}
                 disabled={isPending}
                 placeholder="0"
-                className="font-[var(--font-data)] text-3xl tracking-tight text-[var(--color-on-surface)] bg-transparent border-none outline-none w-56 text-center placeholder:text-white/20"
+                className="font-[var(--font-data)] text-3xl tracking-tight text-on-surface bg-transparent border-none outline-none w-56 text-center placeholder:text-on-surface opacity-20"
               />
             </div>
             {txType === "EXPENSE" && (() => {
@@ -246,7 +261,7 @@ export default function TransactionFormView({
                 const pocketBalance = pocket ? pocket.balance : 0;
                 const isOver = !isNaN(parsed) && parsed > pocketBalance;
                 return (
-                  <p className={`text-[11px] font-semibold mt-2 transition-colors ${isOver ? "text-red-400 font-bold" : "text-[var(--color-on-dim)]"}`}>
+                  <p className={`text-[11px] font-semibold mt-2 transition-colors ${isOver ? "text-error-icon font-bold" : "text-on-dim"}`}>
                     {isOver ? "⚠️ Excede el saldo de la tarjeta" : `Disponible en tarjeta: $${pocketBalance.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`}
                   </p>
                 );
@@ -255,14 +270,14 @@ export default function TransactionFormView({
                 const guardBalance = guard ? guard.current : 0;
                 const isOver = !isNaN(parsed) && parsed > guardBalance;
                 return (
-                  <p className={`text-[11px] font-semibold mt-2 transition-colors ${isOver ? "text-red-400 font-bold" : "text-[var(--color-on-dim)]"}`}>
+                  <p className={`text-[11px] font-semibold mt-2 transition-colors ${isOver ? "text-error-icon font-bold" : "text-on-dim"}`}>
                     {isOver ? "⚠️ Excede el saldo del guardadito" : `Disponible en guardadito: $${guardBalance.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`}
                   </p>
                 );
               } else {
                 const isOver = !isNaN(parsed) && parsed > walletBalance;
                 return (
-                  <p className={`text-[11px] font-semibold mt-2 transition-colors ${isOver ? "text-red-400 font-bold" : "text-[var(--color-on-dim)]"}`}>
+                  <p className={`text-[11px] font-semibold mt-2 transition-colors ${isOver ? "text-error-icon font-bold" : "text-on-dim"}`}>
                     {isOver ? "⚠️ Excede el saldo disponible" : `Disponible en billetera: $${walletBalance.toLocaleString("es-MX", { minimumFractionDigits: 2 })}`}
                   </p>
                 );
@@ -272,7 +287,7 @@ export default function TransactionFormView({
 
           {/* Categories Grid */}
           <div>
-            <p className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)] mb-3">
+            <p className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted mb-3">
               CATEGORÍA
             </p>
             <div className="flex flex-wrap gap-3">
@@ -285,12 +300,12 @@ export default function TransactionFormView({
                   className={`
                     flex flex-col items-center gap-1.5 w-[64px] py-2.5 rounded-2xl border transition-all duration-200
                     ${selectedCategory === cat.value
-                      ? "bg-[var(--color-primary)]/10 border-[var(--color-primary)] text-[var(--color-primary)]"
-                      : "bg-[var(--color-surface-2)] border-white/5 text-[var(--color-on-dim)] hover:border-white/15 hover:text-[var(--color-on-surface)]"
+                      ? "bg-primary/10 border-primary text-primary"
+                      : "bg-surface-2 border-border text-on-dim hover:border-white/15 hover:text-on-surface"
                     }
                   `}
                 >
-                  <div className={`size-9 rounded-full flex items-center justify-center ${selectedCategory === cat.value ? "bg-[var(--color-primary)]/15" : "bg-white/5"}`}>
+                  <div className={`size-9 rounded-full flex items-center justify-center ${selectedCategory === cat.value ? "bg-primary/15" : "bg-white/5"}`}>
                     <TranslateIcon iconKey={cat.iconKey as keyof typeof ICON_MAP} size={18} className="text-current" />
                   </div>
                   <span className="text-[9px] font-semibold tracking-wide uppercase leading-tight text-center w-full truncate px-1">
@@ -303,7 +318,7 @@ export default function TransactionFormView({
                 type="button"
                 onClick={() => setShowNewCategory(true)}
                 aria-label="Nueva categoría"
-                className="flex flex-col items-center gap-1.5 w-[64px] py-2.5 rounded-2xl border border-dashed border-white/15 bg-transparent text-[var(--color-on-dim)] hover:border-white/30 hover:text-[var(--color-on-surface)] transition-all duration-200"
+                className="flex flex-col items-center gap-1.5 w-[64px] py-2.5 rounded-2xl border border-dashed border-white/15 bg-transparent text-on-dim hover:border-white/30 hover:text-on-surface transition-all duration-200"
               >
                 <div className="size-9 rounded-full flex items-center justify-center bg-white/5">
                   <TranslateIcon iconKey="plus" size={18} className="text-current" />
@@ -315,8 +330,8 @@ export default function TransactionFormView({
 
           {/* Create Custom Category Form Overlay */}
           {showNewCategory && (
-            <div className="p-4 rounded-xl bg-[var(--color-surface-2)] border border-white/5 flex flex-col gap-3">
-              <p className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+            <div className="p-4 rounded-xl bg-surface-2 border border-border flex flex-col gap-3">
+              <p className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
                 Nueva Categoría
               </p>
               <input
@@ -325,7 +340,7 @@ export default function TransactionFormView({
                 onChange={(e) => setNewCatLabel(e.target.value)}
                 placeholder="Nombre de la categoría"
                 required
-                className="h-9 w-full rounded-lg bg-[var(--color-surface-3)] border border-white/5 px-3 text-xs text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+                className="h-9 w-full rounded-lg bg-surface-3 border border-border px-3 text-xs text-on-surface focus:outline-none focus:border-primary transition-all"
               />
               <div className="flex flex-wrap gap-2">
                 {CUSTOM_ICON_OPTIONS.map((iconKey) => (
@@ -333,7 +348,7 @@ export default function TransactionFormView({
                     key={iconKey}
                     type="button"
                     onClick={() => setNewCatIcon(iconKey)}
-                    className={`size-8 rounded-lg flex items-center justify-center border transition-all ${newCatIcon === iconKey ? "bg-[var(--color-primary)]/10 border-[var(--color-primary)] text-[var(--color-primary)]" : "bg-[var(--color-surface-3)] border-white/5 text-[var(--color-on-dim)]"}`}
+                    className={`size-8 rounded-lg flex items-center justify-center border transition-all ${newCatIcon === iconKey ? "bg-primary/10 border-primary text-primary" : "bg-surface-3 border-border text-on-dim"}`}
                   >
                     <TranslateIcon iconKey={iconKey} size={15} className="text-current" />
                   </button>
@@ -343,7 +358,7 @@ export default function TransactionFormView({
                 <button
                   type="button"
                   onClick={() => { setShowNewCategory(false); setNewCatLabel(""); }}
-                  className="flex-1 h-8 rounded-lg border border-white/10 text-xs text-[var(--color-on-dim)] hover:text-[var(--color-on-surface)] transition-colors"
+                  className="flex-1 h-8 rounded-lg border border-white/10 text-xs text-on-dim hover:text-on-surface transition-colors"
                 >
                   Cancelar
                 </button>
@@ -351,7 +366,7 @@ export default function TransactionFormView({
                   type="button"
                   onClick={() => handleSaveNewCategory()}
                   disabled={isSavingCat || !newCatLabel.trim()}
-                  className="flex-1 h-8 rounded-lg bg-[var(--color-primary-ctr)] text-white text-xs font-bold tracking-wider disabled:opacity-50"
+                  className="flex-1 h-8 rounded-lg bg-primary-ctr text-on-primary text-xs font-bold tracking-wider disabled:opacity-50"
                 >
                   {isSavingCat ? "..." : "Guardar"}
                 </button>
@@ -360,22 +375,22 @@ export default function TransactionFormView({
           )}
 
           {/* Fields list */}
-          <div className="bg-[var(--color-surface-2)] rounded-2xl divide-y divide-white/5">
+          <div className="bg-surface-2 rounded-2xl divide-y divide-white/5">
             <div className="flex items-center gap-3 px-4 py-3.5">
-              <TranslateIcon iconKey="calendar" size={16} className="text-[var(--color-on-dim)] shrink-0" />
-              <span className="text-sm text-[var(--color-on-dim)] flex-1">Fecha</span>
+              <TranslateIcon iconKey="calendar" size={16} className="text-on-dim shrink-0" />
+              <span className="text-sm text-on-dim flex-1">Fecha</span>
               <input
                 name="date"
                 type="date"
                 defaultValue={today}
                 disabled={isPending}
-                className="text-sm font-semibold text-[var(--color-primary)] bg-transparent border-none outline-none text-right"
+                className="text-sm font-semibold text-primary bg-transparent border-none outline-none text-right"
               />
             </div>
 
             <div className="flex items-center gap-3 px-4 py-3.5">
-              <TranslateIcon iconKey="piggybank" size={16} className="text-[var(--color-on-dim)] shrink-0" />
-              <span className="text-sm text-[var(--color-on-dim)] flex-1">Guardadito</span>
+              <TranslateIcon iconKey="piggybank" size={16} className="text-on-dim shrink-0" />
+              <span className="text-sm text-on-dim flex-1">Guardadito</span>
               <select
                 value={selectedGuardadito}
                 onChange={(e) => {
@@ -385,7 +400,7 @@ export default function TransactionFormView({
                   }
                 }}
                 disabled={isPending}
-                className="text-sm font-semibold text-[var(--color-primary)] bg-transparent border-none outline-none text-right max-w-[140px] truncate"
+                className="text-sm font-semibold text-primary bg-transparent border-none outline-none text-right max-w-[140px] truncate"
               >
                 <option value="">Ninguno</option>
                 {guardaditos.map((g) => (
@@ -395,8 +410,8 @@ export default function TransactionFormView({
             </div>
 
             <div className="flex items-center gap-3 px-4 py-3.5">
-              <TranslateIcon iconKey="creditCard" size={16} className="text-[var(--color-on-dim)] shrink-0" />
-              <span className="text-sm text-[var(--color-on-dim)] flex-1">Pocket / Tarjeta</span>
+              <TranslateIcon iconKey="creditCard" size={16} className="text-on-dim shrink-0" />
+              <span className="text-sm text-on-dim flex-1">Pocket / Tarjeta</span>
               <select
                 value={selectedPocket}
                 onChange={(e) => {
@@ -406,7 +421,7 @@ export default function TransactionFormView({
                   }
                 }}
                 disabled={isPending}
-                className="text-sm font-semibold text-[var(--color-primary)] bg-transparent border-none outline-none text-right max-w-[140px] truncate"
+                className="text-sm font-semibold text-primary bg-transparent border-none outline-none text-right max-w-[140px] truncate"
               >
                 <option value="">Ninguno (Billetera)</option>
                 {pockets.map((p) => (
@@ -422,13 +437,13 @@ export default function TransactionFormView({
             )}
 
             <div className="flex items-start gap-3 px-4 py-3.5">
-              <TranslateIcon iconKey="stickyNote" size={16} className="text-[var(--color-on-dim)] shrink-0 mt-0.5" />
+              <TranslateIcon iconKey="stickyNote" size={16} className="text-on-dim shrink-0 mt-0.5" />
               <input
                 name="note"
                 type="text"
                 disabled={isPending}
                 placeholder="¿Para qué fue esto?"
-                className="flex-1 text-sm text-[var(--color-on-surface)] bg-transparent border-none outline-none placeholder:text-[var(--color-on-dim)]/50"
+                className="flex-1 text-sm text-on-surface bg-transparent border-none outline-none placeholder:text-on-dim/50"
               />
             </div>
           </div>
@@ -449,7 +464,7 @@ export default function TransactionFormView({
                   <button
                     type="button"
                     onClick={() => { setReceiptPreview(null); setReceiptFile(null); }}
-                    className="absolute top-2 right-2 size-7 bg-black/60 rounded-full flex items-center justify-center text-white hover:bg-black/80 transition-colors"
+                    className="absolute top-2 right-2 size-7 bg-overlay rounded-full flex items-center justify-center text-on-primary hover:bg-overlay transition-colors"
                   >
                     <TranslateIcon iconKey="plus" size={14} className="rotate-45" />
                   </button>
@@ -458,7 +473,7 @@ export default function TransactionFormView({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full h-20 rounded-xl border border-dashed border-white/15 bg-[var(--color-surface-2)]/50 flex flex-col items-center justify-center gap-1.5 hover:border-white/30 hover:bg-[var(--color-surface-2)] transition-all duration-200 text-[var(--color-on-dim)] hover:text-[var(--color-on-surface)]"
+                  className="w-full h-20 rounded-xl border border-dashed border-white/15 bg-surface-2/50 flex flex-col items-center justify-center gap-1.5 hover:border-white/30 hover:bg-surface-2 transition-all duration-200 text-on-dim hover:text-on-surface"
                 >
                   <TranslateIcon iconKey="camera" size={18} className="text-current" />
                   <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.12em] uppercase">
@@ -474,7 +489,7 @@ export default function TransactionFormView({
             <button
               type="submit"
               disabled={isPending}
-              className="px-6 h-13 w-full rounded-2xl bg-[var(--color-primary-ctr)] text-white font-[var(--font-data)] text-[13px] font-bold tracking-[0.15em] uppercase shadow-[var(--shadow-fab)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-[var(--color-primary-mid)] active:translate-y-0 disabled:opacity-50"
+              className="px-6 h-13 w-full rounded-2xl bg-primary-ctr text-on-primary font-[var(--font-data)] text-[13px] font-bold tracking-[0.15em] uppercase shadow-[var(--shadow-fab)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-mid active:translate-y-0 disabled:opacity-50"
             >
               {isPending ? "Guardando..." : "Agregar Transacción"}
             </button>

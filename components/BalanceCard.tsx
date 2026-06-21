@@ -22,8 +22,8 @@ export default function BalanceCard({
         anim-fade-up-1
         relative overflow-hidden
         flex flex-col items-center lg:items-start gap-3
-        bg-[var(--color-surface-1)]
-        border border-white/5
+        bg-surface-1
+        border border-border
         rounded-2xl px-6 py-8
         
         balance-shimmer
@@ -31,18 +31,18 @@ export default function BalanceCard({
       "
     >
       <div
-        className="absolute w-64 h-52 -top-32 right-0 bg-primary-ctr blur-3xl"
+        className="absolute w-64 h-52 -top-32 right-0 bg-primary-deep blur-3xl opacity-30 dark:opacity-100"
       >
 
       </div>
         <div
-          className="absolute opacity-50 w-64 h-52 -bottom-32 left-0 bg-primary-ctr blur-3xl"
+          className="absolute opacity-20 dark:opacity-50 w-64 h-52 -bottom-32 left-0 bg-primary-deep blur-3xl"
         ></div>
-      <p className="font-[var(--font-data)] z-10 text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-on-dim)]">
+      <p className="font-[var(--font-data)] z-10 text-[11px] font-semibold tracking-[0.1em] uppercase text-on-dim">
         Saldo Total
       </p>
 
-      <h1 className="font-[var(--font-data)] z-10 text-[38px] lg:text-[44px] font-bold tracking-tight leading-none text-[var(--color-on-surface)]">
+      <h1 className="font-[var(--font-data)] z-10 text-[38px] lg:text-[44px] font-bold tracking-tight leading-none text-on-surface">
         {totalBalance}
       </h1>
 
@@ -53,8 +53,8 @@ export default function BalanceCard({
           px-3 py-1 rounded-full
           font-[var(--font-data)] text-[13px] font-semibold tracking-wide
           ${isPositive
-            ? "bg-[var(--color-primary)]/10 text-[var(--color-primary)]"
-            : "bg-[var(--color-error)]/10 text-[var(--color-error)]"
+            ? "bg-primary/10 text-primary"
+            : "bg-[var(--color-error)]/10 text-error"
           }
         `}
       >

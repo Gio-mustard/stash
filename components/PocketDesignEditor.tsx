@@ -226,15 +226,15 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
     <div className="w-full max-w-5xl mx-auto flex flex-col lg:flex-row gap-8 items-start pb-12">
       {/* Left Column: Preview */}
       <div className="w-full lg:w-5/12 flex flex-col gap-6 lg:sticky lg:top-24">
-        <h2 className="text-sm font-semibold tracking-[0.15em] uppercase text-[var(--color-on-dim)] font-[var(--font-data)]">
+        <h2 className="text-sm font-semibold tracking-[0.15em] uppercase text-on-dim font-[var(--font-data)]">
           Vista Previa en Tiempo Real
         </h2>
         <div className="w-full max-w-sm mx-auto lg:mx-0">
           <PocketCard pocket={previewPocket} isInteractive={false} />
         </div>
 
-        <div className="p-4 rounded-xl bg-[var(--color-surface-1)] border border-white/5 text-xs text-[var(--color-on-dim)] flex flex-col gap-2">
-          <p className="font-semibold text-[var(--color-on-surface)]">💡 Tips de Diseño:</p>
+        <div className="p-4 rounded-xl bg-surface-1 border border-border text-xs text-on-dim flex flex-col gap-2">
+          <p className="font-semibold text-on-surface">💡 Tips de Diseño:</p>
           <ul className="list-disc pl-4 space-y-1">
             <li>Usa colores oscuros de fondo para hacer resaltar los textos claros.</li>
             <li>El color de acento define la línea decorativa inferior y el color del ícono.</li>
@@ -244,21 +244,21 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
       </div>
 
       {/* Right Column: Customization Controls */}
-      <form onSubmit={handleSave} className="w-full lg:w-7/12 bg-[var(--color-surface-1)] border border-white/5 rounded-2xl p-6 sm:p-8 flex flex-col gap-6">
+      <form onSubmit={handleSave} className="w-full lg:w-7/12 bg-surface-1 border border-border rounded-2xl p-6 sm:p-8 flex flex-col gap-6">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-[var(--color-on-surface)]">
+          <h1 className="text-xl font-bold tracking-tight text-on-surface">
             Diseñador de Pockets Personalizados
           </h1>
-          <p className="text-xs text-[var(--color-on-dim)] mt-1">
+          <p className="text-xs text-on-dim mt-1">
             Personaliza el fondo, colores, bordes y texturas para tus tarjetas.
           </p>
         </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-red-950/30 border border-red-500/30 text-red-200 text-xs flex items-start gap-2">
-            <TranslateIcon iconKey="emergency" size={14} className="shrink-0 mt-0.5 text-red-400" />
+          <div className="p-3 rounded-xl bg-error-subtle border border-error-border text-error-text text-xs flex items-start gap-2">
+            <TranslateIcon iconKey="emergency" size={14} className="shrink-0 mt-0.5 text-error-icon" />
             <div className="flex-1">
-              <p className="font-semibold text-red-300">Error</p>
+              <p className="font-semibold text-error-text">Error</p>
               <p className="opacity-90">{error}</p>
             </div>
           </div>
@@ -266,14 +266,14 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
 
         {/* Load Saved Designs (Dropdown) */}
         {initialDesigns.length > 0 && (
-          <div className="flex flex-col gap-1.5 p-4 rounded-xl bg-blue-950/20 border border-blue-500/20">
+          <div className="flex flex-col gap-1.5 p-4 rounded-xl bg-info-subtle border border-info-border">
             <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-blue-300">
               📂 Cargar Estilo Existente
             </label>
             <select
               value={selectedDesignId}
               onChange={(e) => handleLoadSavedStyle(e.target.value)}
-              className="h-10 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/10 px-3 text-xs text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+              className="h-10 w-full rounded-xl bg-surface-2 border border-white/10 px-3 text-xs text-on-surface focus:outline-none focus:border-primary transition-all"
             >
               <option value="">-- Elige un estilo guardado --</option>
               {initialDesigns.map((d) => (
@@ -286,17 +286,17 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
         )}
 
         {/* Action Toggles */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-[var(--color-surface-2)] border border-white/5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-surface-2 border border-border">
           <label className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
               checked={saveStyleEnabled}
               onChange={(e) => setSaveStyleEnabled(e.target.checked)}
-              className="w-4 h-4 rounded bg-[var(--color-surface-1)] border-white/10 text-[var(--color-primary)] focus:ring-0"
+              className="w-4 h-4 rounded bg-surface-1 border-white/10 text-primary focus:ring-0"
             />
             <div className="flex flex-col">
-              <span className="text-xs font-semibold text-[var(--color-on-surface)]">Guardar Estilo en Biblioteca</span>
-              <span className="text-[9px] text-[var(--color-on-dim)]">Guarda el diseño para reusarlo después</span>
+              <span className="text-xs font-semibold text-on-surface">Guardar Estilo en Biblioteca</span>
+              <span className="text-[9px] text-on-dim">Guarda el diseño para reusarlo después</span>
             </div>
           </label>
 
@@ -305,11 +305,11 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
               type="checkbox"
               checked={createCardEnabled}
               onChange={(e) => setCreateCardEnabled(e.target.checked)}
-              className="w-4 h-4 rounded bg-[var(--color-surface-1)] border-white/10 text-[var(--color-primary)] focus:ring-0"
+              className="w-4 h-4 rounded bg-surface-1 border-white/10 text-primary focus:ring-0"
             />
             <div className="flex flex-col">
-              <span className="text-xs font-semibold text-[var(--color-on-surface)]">Crear Tarjeta en mi Wallet</span>
-              <span className="text-[9px] text-[var(--color-on-dim)]">Crea un Pocket real usando este diseño</span>
+              <span className="text-xs font-semibold text-on-surface">Crear Tarjeta en mi Wallet</span>
+              <span className="text-[9px] text-on-dim">Crea un Pocket real usando este diseño</span>
             </div>
           </label>
         </div>
@@ -317,7 +317,7 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
         {/* Style Name Field (Only if saveStyleEnabled) */}
         {saveStyleEnabled && (
           <div className="flex flex-col gap-1.5">
-            <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+            <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
               Nombre del Estilo / Diseño
             </label>
             <input
@@ -326,16 +326,16 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
               value={styleName}
               onChange={(e) => setStyleName(e.target.value)}
               placeholder="ej. Nu México Morada, BBVA Gold..."
-              className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+              className="h-11 w-full rounded-xl bg-surface-2 border border-border px-4 text-sm text-on-surface focus:outline-none focus:border-primary transition-all"
             />
           </div>
         )}
 
         {/* Card Fields (Only if createCardEnabled) */}
         {createCardEnabled && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-white/5 pt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-border pt-4">
             <div className="flex flex-col gap-1.5">
-              <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+              <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
                 Nombre de la Tarjeta
               </label>
               <input
@@ -344,12 +344,12 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="ej. Nu México, Mi Cartera..."
-                className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+                className="h-11 w-full rounded-xl bg-surface-2 border border-border px-4 text-sm text-on-surface focus:outline-none focus:border-primary transition-all"
               />
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+              <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
                 Subtítulo / Nota corta
               </label>
               <input
@@ -357,12 +357,12 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
                 value={subtitle}
                 onChange={(e) => setSubtitle(e.target.value)}
                 placeholder="ej. Tarjeta de Crédito, Cuenta *1245..."
-                className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+                className="h-11 w-full rounded-xl bg-surface-2 border border-border px-4 text-sm text-on-surface focus:outline-none focus:border-primary transition-all"
               />
             </div>
 
             <div className="flex flex-col gap-1.5 sm:col-span-2">
-              <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+              <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
                 Saldo Inicial (Dinero Externo)
               </label>
               <input
@@ -372,17 +372,17 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
                 value={balance}
                 onChange={(e) => setBalance(e.target.value)}
                 placeholder="0.00"
-                className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+                className="h-11 w-full rounded-xl bg-surface-2 border border-border px-4 text-sm text-on-surface focus:outline-none focus:border-primary transition-all"
               />
             </div>
           </div>
         )}
 
-        <hr className="border-white/5 my-1" />
+        <hr className="border-border my-1" />
 
         {/* Background Config Type */}
         <div className="flex flex-col gap-2">
-          <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+          <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
             Tipo de Fondo
           </span>
           <div className="grid grid-cols-2 gap-2">
@@ -391,8 +391,8 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
               onClick={() => setBgType("solid")}
               className={`h-10 rounded-xl border text-xs font-medium transition-all ${
                 bgType === "solid"
-                  ? "bg-[var(--color-primary)]/10 border-[var(--color-primary)] text-[var(--color-primary)]"
-                  : "bg-[var(--color-surface-2)] border-white/5 text-[var(--color-on-dim)]"
+                  ? "bg-primary/10 border-primary text-primary"
+                  : "bg-surface-2 border-border text-on-dim"
               }`}
             >
               Color Sólido
@@ -402,8 +402,8 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
               onClick={() => setBgType("gradient")}
               className={`h-10 rounded-xl border text-xs font-medium transition-all ${
                 bgType === "gradient"
-                  ? "bg-[var(--color-primary)]/10 border-[var(--color-primary)] text-[var(--color-primary)]"
-                  : "bg-[var(--color-surface-2)] border-white/5 text-[var(--color-on-dim)]"
+                  ? "bg-primary/10 border-primary text-primary"
+                  : "bg-surface-2 border-border text-on-dim"
               }`}
             >
               Gradiente
@@ -413,13 +413,13 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
 
         {/* Background Gradients/Colors */}
         <div className="flex flex-col gap-4">
-          <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+          <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
             {bgType === "solid" ? "Color de Fondo" : "Colores de Fondo (Gradiente)"}
           </span>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-2 col-span-1">
-              <span className="text-[11px] text-[var(--color-on-dim)]">
+              <span className="text-[11px] text-on-dim">
                 {bgType === "solid" ? "Color Principal" : "Color de Inicio"}
               </span>
               <div className="flex gap-2">
@@ -427,32 +427,32 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
                   type="color"
                   value={bgFrom}
                   onChange={(e) => setBgFrom(e.target.value)}
-                  className="w-11 h-11 rounded-xl bg-transparent border border-white/5 p-1 cursor-pointer shrink-0"
+                  className="w-11 h-11 rounded-xl bg-transparent border border-border p-1 cursor-pointer shrink-0"
                 />
                 <input
                   type="text"
                   value={bgFrom}
                   onChange={(e) => setBgFrom(e.target.value)}
-                  className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-3 text-xs uppercase"
+                  className="h-11 w-full rounded-xl bg-surface-2 border border-border px-3 text-xs uppercase"
                 />
               </div>
             </div>
 
             {bgType === "gradient" && (
               <div className="flex flex-col gap-2 col-span-1">
-                <span className="text-[11px] text-[var(--color-on-dim)]">Color de Fin</span>
+                <span className="text-[11px] text-on-dim">Color de Fin</span>
                 <div className="flex gap-2">
                   <input
                     type="color"
                     value={bgTo}
                     onChange={(e) => setBgTo(e.target.value)}
-                    className="w-11 h-11 rounded-xl bg-transparent border border-white/5 p-1 cursor-pointer shrink-0"
+                    className="w-11 h-11 rounded-xl bg-transparent border border-border p-1 cursor-pointer shrink-0"
                   />
                   <input
                     type="text"
                     value={bgTo}
                     onChange={(e) => setBgTo(e.target.value)}
-                    className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-3 text-xs uppercase"
+                    className="h-11 w-full rounded-xl bg-surface-2 border border-border px-3 text-xs uppercase"
                   />
                 </div>
               </div>
@@ -461,7 +461,7 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
 
           {/* Background Presets */}
           <div className="flex flex-col gap-1.5">
-            <span className="text-[10px] text-[var(--color-on-dim)]">Predefinidos rápidos:</span>
+            <span className="text-[10px] text-on-dim">Predefinidos rápidos:</span>
             <div className="flex flex-wrap gap-2">
               {COLOR_PRESETS.map((color) => (
                 <button
@@ -473,7 +473,7 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
                       setBgTo(color.hex === "#090909" ? "#1e1e1e" : `${color.hex}22`);
                     }
                   }}
-                  className="h-6 px-2.5 rounded-full border border-white/5 text-[9px] font-semibold text-[var(--color-on-surface)] transition-all hover:border-white/20"
+                  className="h-6 px-2.5 rounded-full border border-border text-[9px] font-semibold text-on-surface transition-all hover:border-white/20"
                   style={{ backgroundColor: color.hex }}
                 >
                   {color.name}
@@ -484,14 +484,14 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
         </div>
 
         {/* Custom Background Image Layer */}
-        <div className="flex flex-col gap-4 p-4 rounded-xl bg-[var(--color-surface-2)] border border-white/5">
-          <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+        <div className="flex flex-col gap-4 p-4 rounded-xl bg-surface-2 border border-border">
+          <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
             Imagen de Fondo (Opcional)
           </span>
 
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-2">
-              <span className="text-[11px] text-[var(--color-on-dim)]">Subir Archivo o pegar URL</span>
+              <span className="text-[11px] text-on-dim">Subir Archivo o pegar URL</span>
               <div className="flex flex-col sm:flex-row gap-3 items-stretch">
                 <input
                   type="file"
@@ -503,7 +503,7 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
                 />
                 <label
                   htmlFor="bg-file-input"
-                  className={`h-10 px-4 rounded-xl border border-dashed border-white/10 flex items-center justify-center gap-2 cursor-pointer text-xs font-semibold text-[var(--color-on-surface)] transition-all hover:bg-white/5 active:scale-95 select-none ${
+                  className={`h-10 px-4 rounded-xl border border-dashed border-white/10 flex items-center justify-center gap-2 cursor-pointer text-xs font-semibold text-on-surface transition-all hover:bg-white/5 active:scale-95 select-none ${
                     isUploading ? "opacity-50 pointer-events-none" : ""
                   }`}
                 >
@@ -515,13 +515,13 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
                   value={bgImage}
                   onChange={(e) => setBgImage(e.target.value)}
                   placeholder="https://... o sube un archivo"
-                  className="h-10 flex-1 rounded-xl bg-[var(--color-surface-1)] border border-white/5 px-3 text-xs text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+                  className="h-10 flex-1 rounded-xl bg-surface-1 border border-border px-3 text-xs text-on-surface focus:outline-none focus:border-primary transition-all"
                 />
                 {bgImage && (
                   <button
                     type="button"
                     onClick={() => setBgImage("")}
-                    className="h-10 px-3 rounded-xl border border-red-500/20 bg-red-950/20 text-red-400 text-xs font-semibold hover:bg-red-950/40 transition-all"
+                    className="h-10 px-3 rounded-xl border border-error-border bg-error-subtle text-error-icon text-xs font-semibold hover:bg-error-subtle transition-all"
                   >
                     Quitar
                   </button>
@@ -532,11 +532,11 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
             {bgImage && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <span className="text-[11px] text-[var(--color-on-dim)]">Posición</span>
+                  <span className="text-[11px] text-on-dim">Posición</span>
                   <select
                     value={bgImagePos}
                     onChange={(e) => setBgImagePos(e.target.value)}
-                    className="h-10 w-full rounded-xl bg-[var(--color-surface-1)] border border-white/5 px-3 text-xs text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+                    className="h-10 w-full rounded-xl bg-surface-1 border border-border px-3 text-xs text-on-surface focus:outline-none focus:border-primary transition-all"
                   >
                     <option value="center">Centro</option>
                     <option value="top">Arriba</option>
@@ -551,9 +551,9 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <div className="flex justify-between items-center text-[11px] text-[var(--color-on-dim)]">
+                  <div className="flex justify-between items-center text-[11px] text-on-dim">
                     <span>Opacidad de la Imagen</span>
-                    <span className="font-semibold text-[var(--color-primary)]">{bgImageOpacity}%</span>
+                    <span className="font-semibold text-primary">{bgImageOpacity}%</span>
                   </div>
                   <input
                     type="range"
@@ -561,7 +561,7 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
                     max="100"
                     value={bgImageOpacity}
                     onChange={(e) => setBgImageOpacity(parseInt(e.target.value))}
-                    className="w-full h-2 bg-[var(--color-surface-1)] rounded-lg appearance-none cursor-pointer accent-[var(--color-primary)] mt-3"
+                    className="w-full h-2 bg-surface-1 rounded-lg appearance-none cursor-pointer accent-[var(--color-primary)] mt-3"
                   />
                 </div>
               </div>
@@ -571,7 +571,7 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
 
         {/* Accent Color */}
         <div className="flex flex-col gap-3">
-          <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+          <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
             Color de Acento (Detalles)
           </span>
           <div className="flex gap-2">
@@ -579,7 +579,7 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
               type="color"
               value={accent}
               onChange={(e) => setAccent(e.target.value)}
-              className="w-11 h-11 rounded-xl bg-transparent border border-white/5 p-1 cursor-pointer shrink-0"
+              className="w-11 h-11 rounded-xl bg-transparent border border-border p-1 cursor-pointer shrink-0"
             />
             <div className="flex flex-wrap gap-1.5 items-center">
               {ACCENT_PRESETS.map((acc) => (
@@ -598,17 +598,17 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
 
         {/* Border Selection Control */}
         <div className="flex flex-col gap-4">
-          <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+          <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
             Bordes Activos y Grosor (Haz clic en los lados para activar y ajusta su grosor)
           </span>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 mt-1">
-            <div className="relative w-28 h-20 rounded-xl bg-black/40 border border-white/5 flex items-center justify-center p-2 shrink-0">
+            <div className="relative w-28 h-20 rounded-xl bg-black/40 border border-border flex items-center justify-center p-2 shrink-0">
               {/* Top Border Indicator/Button */}
               <button
                 type="button"
                 onClick={() => setBorderSelection((prev) => ({ ...prev, top: !prev.top }))}
                 className={`absolute top-0 left-3 right-3 h-2 transition-all rounded-b-md ${
-                  borderSelection.top ? "bg-[var(--color-primary)] opacity-100 shadow-[0_0_8px_var(--color-primary)]" : "bg-white/10 opacity-30 hover:opacity-60"
+                  borderSelection.top ? "bg-primary opacity-100 shadow-[0_0_8px_var(--color-primary)]" : "bg-white/10 opacity-30 hover:opacity-60"
                 }`}
                 title="Borde Superior"
               />
@@ -617,7 +617,7 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
                 type="button"
                 onClick={() => setBorderSelection((prev) => ({ ...prev, right: !prev.right }))}
                 className={`absolute top-3 bottom-3 right-0 w-2 transition-all rounded-l-md ${
-                  borderSelection.right ? "bg-[var(--color-primary)] opacity-100 shadow-[0_0_8px_var(--color-primary)]" : "bg-white/10 opacity-30 hover:opacity-60"
+                  borderSelection.right ? "bg-primary opacity-100 shadow-[0_0_8px_var(--color-primary)]" : "bg-white/10 opacity-30 hover:opacity-60"
                 }`}
                 title="Borde Derecho"
               />
@@ -626,7 +626,7 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
                 type="button"
                 onClick={() => setBorderSelection((prev) => ({ ...prev, bottom: !prev.bottom }))}
                 className={`absolute bottom-0 left-3 right-3 h-2 transition-all rounded-t-md ${
-                  borderSelection.bottom ? "bg-[var(--color-primary)] opacity-100 shadow-[0_0_8px_var(--color-primary)]" : "bg-white/10 opacity-30 hover:opacity-60"
+                  borderSelection.bottom ? "bg-primary opacity-100 shadow-[0_0_8px_var(--color-primary)]" : "bg-white/10 opacity-30 hover:opacity-60"
                 }`}
                 title="Borde Inferior"
               />
@@ -635,11 +635,11 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
                 type="button"
                 onClick={() => setBorderSelection((prev) => ({ ...prev, left: !prev.left }))}
                 className={`absolute top-3 bottom-3 left-0 w-2 transition-all rounded-r-md ${
-                  borderSelection.left ? "bg-[var(--color-primary)] opacity-100 shadow-[0_0_8px_var(--color-primary)]" : "bg-white/10 opacity-30 hover:opacity-60"
+                  borderSelection.left ? "bg-primary opacity-100 shadow-[0_0_8px_var(--color-primary)]" : "bg-white/10 opacity-30 hover:opacity-60"
                 }`}
                 title="Borde Izquierdo"
               />
-              <div className="text-[10px] text-white/40 font-bold uppercase tracking-wider select-none font-[var(--font-data)]">
+              <div className="text-[10px] text-on-surface opacity-40 font-bold uppercase tracking-wider select-none font-[var(--font-data)]">
                 Tarjeta
               </div>
             </div>
@@ -648,58 +648,58 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
             <div className="flex flex-col gap-2 w-full max-w-[240px]">
               {borderSelection.top && (
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-[11px] text-[var(--color-on-dim)] w-20">Arriba:</span>
+                  <span className="text-[11px] text-on-dim w-20">Arriba:</span>
                   <input
                     type="range"
                     min="1"
                     max="8"
                     value={borderWidths.top}
                     onChange={(e) => setBorderWidths(prev => ({ ...prev, top: parseInt(e.target.value) }))}
-                    className="flex-1 h-1.5 bg-[var(--color-surface-2)] rounded cursor-pointer accent-[var(--color-primary)]"
+                    className="flex-1 h-1.5 bg-surface-2 rounded cursor-pointer accent-[var(--color-primary)]"
                   />
-                  <span className="font-mono text-[10px] text-[var(--color-primary)] font-bold w-8 text-right">{borderWidths.top}px</span>
+                  <span className="font-mono text-[10px] text-primary font-bold w-8 text-right">{borderWidths.top}px</span>
                 </div>
               )}
               {borderSelection.right && (
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-[11px] text-[var(--color-on-dim)] w-20">Derecha:</span>
+                  <span className="text-[11px] text-on-dim w-20">Derecha:</span>
                   <input
                     type="range"
                     min="1"
                     max="8"
                     value={borderWidths.right}
                     onChange={(e) => setBorderWidths(prev => ({ ...prev, right: parseInt(e.target.value) }))}
-                    className="flex-1 h-1.5 bg-[var(--color-surface-2)] rounded cursor-pointer accent-[var(--color-primary)]"
+                    className="flex-1 h-1.5 bg-surface-2 rounded cursor-pointer accent-[var(--color-primary)]"
                   />
-                  <span className="font-mono text-[10px] text-[var(--color-primary)] font-bold w-8 text-right">{borderWidths.right}px</span>
+                  <span className="font-mono text-[10px] text-primary font-bold w-8 text-right">{borderWidths.right}px</span>
                 </div>
               )}
               {borderSelection.bottom && (
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-[11px] text-[var(--color-on-dim)] w-20">Abajo:</span>
+                  <span className="text-[11px] text-on-dim w-20">Abajo:</span>
                   <input
                     type="range"
                     min="1"
                     max="8"
                     value={borderWidths.bottom}
                     onChange={(e) => setBorderWidths(prev => ({ ...prev, bottom: parseInt(e.target.value) }))}
-                    className="flex-1 h-1.5 bg-[var(--color-surface-2)] rounded cursor-pointer accent-[var(--color-primary)]"
+                    className="flex-1 h-1.5 bg-surface-2 rounded cursor-pointer accent-[var(--color-primary)]"
                   />
-                  <span className="font-mono text-[10px] text-[var(--color-primary)] font-bold w-8 text-right">{borderWidths.bottom}px</span>
+                  <span className="font-mono text-[10px] text-primary font-bold w-8 text-right">{borderWidths.bottom}px</span>
                 </div>
               )}
               {borderSelection.left && (
                 <div className="flex items-center justify-between gap-3">
-                  <span className="text-[11px] text-[var(--color-on-dim)] w-20">Izquierda:</span>
+                  <span className="text-[11px] text-on-dim w-20">Izquierda:</span>
                   <input
                     type="range"
                     min="1"
                     max="8"
                     value={borderWidths.left}
                     onChange={(e) => setBorderWidths(prev => ({ ...prev, left: parseInt(e.target.value) }))}
-                    className="flex-1 h-1.5 bg-[var(--color-surface-2)] rounded cursor-pointer accent-[var(--color-primary)]"
+                    className="flex-1 h-1.5 bg-surface-2 rounded cursor-pointer accent-[var(--color-primary)]"
                   />
-                  <span className="font-mono text-[10px] text-[var(--color-primary)] font-bold w-8 text-right">{borderWidths.left}px</span>
+                  <span className="font-mono text-[10px] text-primary font-bold w-8 text-right">{borderWidths.left}px</span>
                 </div>
               )}
             </div>
@@ -710,7 +710,7 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {/* Text Color Theme */}
           <div className="flex flex-col gap-2">
-            <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+            <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
               Color de Texto
             </span>
             <div className="grid grid-cols-2 gap-2">
@@ -719,8 +719,8 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
                 onClick={() => setTextColor("light")}
                 className={`h-11 rounded-xl border text-xs font-medium transition-all ${
                   textColor === "light"
-                    ? "bg-[var(--color-primary)]/10 border-[var(--color-primary)] text-[var(--color-primary)]"
-                    : "bg-[var(--color-surface-2)] border-white/5 text-[var(--color-on-dim)]"
+                    ? "bg-primary/10 border-primary text-primary"
+                    : "bg-surface-2 border-border text-on-dim"
                 }`}
               >
                 Claro
@@ -730,8 +730,8 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
                 onClick={() => setTextColor("dark")}
                 className={`h-11 rounded-xl border text-xs font-medium transition-all ${
                   textColor === "dark"
-                    ? "bg-[var(--color-primary)]/10 border-[var(--color-primary)] text-[var(--color-primary)]"
-                    : "bg-[var(--color-surface-2)] border-white/5 text-[var(--color-on-dim)]"
+                    ? "bg-primary/10 border-primary text-primary"
+                    : "bg-surface-2 border-border text-on-dim"
                 }`}
               >
                 Oscuro
@@ -741,7 +741,7 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
 
           {/* Texture Toggle */}
           <div className="flex flex-col gap-2">
-            <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+            <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
               Textura
             </span>
             <div className="grid grid-cols-2 gap-2">
@@ -750,8 +750,8 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
                 onClick={() => setTexture("none")}
                 className={`h-11 rounded-xl border text-xs font-medium transition-all ${
                   texture === "none"
-                    ? "bg-[var(--color-primary)]/10 border-[var(--color-primary)] text-[var(--color-primary)]"
-                    : "bg-[var(--color-surface-2)] border-white/5 text-[var(--color-on-dim)]"
+                    ? "bg-primary/10 border-primary text-primary"
+                    : "bg-surface-2 border-border text-on-dim"
                 }`}
               >
                 Liso
@@ -761,8 +761,8 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
                 onClick={() => setTexture("pinstripe")}
                 className={`h-11 rounded-xl border text-xs font-medium transition-all ${
                   texture === "pinstripe"
-                    ? "bg-[var(--color-primary)]/10 border-[var(--color-primary)] text-[var(--color-primary)]"
-                    : "bg-[var(--color-surface-2)] border-white/5 text-[var(--color-on-dim)]"
+                    ? "bg-primary/10 border-primary text-primary"
+                    : "bg-surface-2 border-border text-on-dim"
                 }`}
               >
                 Líneas
@@ -772,10 +772,10 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
 
           {/* Selected Icon */}
           <div className="flex flex-col gap-2">
-            <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+            <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-on-muted">
               Ícono Tarjeta
             </span>
-            <div className="flex items-center gap-3 h-11 px-4 rounded-xl bg-[var(--color-surface-2)] border border-white/5 text-[var(--color-on-surface)]">
+            <div className="flex items-center gap-3 h-11 px-4 rounded-xl bg-surface-2 border border-border text-on-surface">
               <TranslateIcon iconKey={icon} size={18} style={{ color: accent }} />
               <span className="text-xs font-medium truncate capitalize">
                 {ICON_OPTIONS.find((o) => o.key === icon)?.label || icon}
@@ -786,7 +786,7 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
 
         {/* Icon Picker options list */}
         <div className="flex flex-col gap-2">
-          <span className="text-[10px] text-[var(--color-on-dim)]">Selecciona el ícono:</span>
+          <span className="text-[10px] text-on-dim">Selecciona el ícono:</span>
           <div className="grid grid-cols-5 sm:grid-cols-9 gap-2">
             {ICON_OPTIONS.map((opt) => (
               <button
@@ -795,8 +795,8 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
                 onClick={() => setIcon(opt.key)}
                 className={`h-9 flex items-center justify-center rounded-lg border transition-all ${
                   icon === opt.key
-                    ? "bg-[var(--color-primary)]/10 border-[var(--color-primary)] text-[var(--color-primary)]"
-                    : "bg-[var(--color-surface-2)] border-white/5 text-[var(--color-on-dim)] hover:border-white/10"
+                    ? "bg-primary/10 border-primary text-primary"
+                    : "bg-surface-2 border-border text-on-dim hover:border-white/10"
                 }`}
                 title={opt.label}
               >
@@ -809,7 +809,7 @@ export default function PocketDesignEditor({ initialDesigns = [] }: PocketDesign
         <button
           type="submit"
           disabled={isPending}
-          className="h-12 w-full mt-4 rounded-xl bg-[var(--color-primary-ctr)] text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase shadow-[var(--shadow-fab)] transition-all hover:-translate-y-0.5 hover:bg-[var(--color-primary-mid)] active:translate-y-0 disabled:opacity-50"
+          className="h-12 w-full mt-4 rounded-xl bg-primary-ctr text-on-primary font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase shadow-[var(--shadow-fab)] transition-all hover:-translate-y-0.5 hover:bg-primary-mid active:translate-y-0 disabled:opacity-50"
         >
           {isPending
             ? "Procesando..."
