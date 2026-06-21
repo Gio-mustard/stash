@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useTransition } from "react";
-import { Drawer } from "vaul";
 import TranslateIcon from "@/components/translateIcon";
+import SlidePanel from "./SlidePanel";
 import {
   pocketDeposit,
   pocketExpense,
@@ -12,15 +12,11 @@ import {
   deletePocket,
 } from "@/app/actions_pockets";
 import PocketCard, { PocketData, POCKET_PRESETS, getPocketStyles } from "./PocketCard";
-import TopBar from "./TopBar";
-import Sidebar from "./Sidebar";
-import BottomNav from "./BottomNav";
 import BackBreadcrumb from "./BackBreadcrumb";
 import type { CustomCategory } from "./DashboardView";
+import { useBreadcrumbs } from "@/lib/BreadcrumbContext";
 
 type PocketDetailViewProps = {
-  userName: string;
-  avatarUrl?: string | null;
   pocket: PocketData;
   transactions: {
     id: string;
@@ -52,13 +48,17 @@ const BUILTIN_CATEGORIES = [
 ] as const;
 
 export default function PocketDetailView({
-  userName,
-  avatarUrl,
   pocket,
   transactions,
   guardaditos,
   customCategories,
 }: PocketDetailViewProps) {
+  useBreadcrumbs({
+    parentHref: "/wallet",
+    parentLabel: "Billetera",
+    last: pocket.name,
+  });
+
   const [isPending, startTransition] = useTransition();
 
   // Drawers open states
@@ -301,17 +301,8 @@ export default function PocketDetailView({
   };
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen w-full bg-[var(--color-bg)]">
-      <Sidebar onFabClick={() => setIsExpenseOpen(true)} />
-
-      <div className="flex-1 flex flex-col min-h-screen">
-        <TopBar 
-          userName={userName} 
-          avatarUrl={avatarUrl} 
-          breadcrumbOptions={{ last: pocket.name }}
-        />
-
-        <main className="flex-1 overflow-y-auto px-6 py-6 pb-20 w-full max-w-4xl mx-auto flex flex-col gap-8">
+    <>
+      <div className="w-full max-w-4xl mx-auto px-6 py-6 pb-20 flex flex-col gap-8">
           {/* Quick Stats & Card Display */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
             <div className="md:col-span-5 w-full max-w-sm mx-auto md:mx-0">
@@ -571,480 +562,372 @@ export default function PocketDetailView({
               Eliminar Tarjeta
             </button>
           </div>
-        </main>
-      </div>
+        </div>
 
-      <BottomNav />
+      {/* ── MODALS ── */}
 
-      {/* ── DRAWERS ── */}
+      {/* 1. Deposit */}
+      <SlidePanel open={isDepositOpen} onClose={() => setIsDepositOpen(false)} title={`Ingresar Dinero a ${pocket.name}`}>
+        {depositError && (
+          <div className="p-3 rounded-xl bg-red-950/30 border border-red-500/30 text-red-200 text-xs">
+            {depositError}
+          </div>
+        )}
+        <form onSubmit={handleDeposit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+              Monto
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              required
+              value={depositAmount}
+              onChange={(e) => setDepositAmount(e.target.value)}
+              placeholder="0.00"
+              disabled={isPending}
+              className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+            />
+          </div>
 
-      {/* 1. Deposit Drawer */}
-      <Drawer.Root open={isDepositOpen} onOpenChange={setIsDepositOpen} direction="right">
-        <Drawer.Portal>
-          <Drawer.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 animate-in fade-in duration-200" />
-          <Drawer.Content className="fixed z-50 text-[var(--color-on-surface)] bg-[var(--color-surface-3)] focus:outline-none bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl border-t border-white/5 flex flex-col sm:top-0 sm:right-0 sm:left-auto sm:bottom-0 sm:w-[400px] sm:max-h-full sm:rounded-l-2xl sm:rounded-tr-none sm:border-l sm:border-t-0">
-            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-white/10 my-4 sm:hidden" />
-            <div className="flex-1 overflow-y-auto px-6 pb-8 sm:py-8 w-full flex flex-col gap-6">
-              <div className="flex items-center justify-between">
-                <Drawer.Title className="text-lg font-semibold tracking-tight">
-                  Ingresar Dinero a {pocket.name}
-                </Drawer.Title>
-                <Drawer.Close className="text-[var(--color-on-dim)] hover:text-[var(--color-on-surface)]">
-                  <TranslateIcon iconKey="plus" size={20} className="rotate-45" />
-                </Drawer.Close>
-              </div>
-
-              {depositError && (
-                <div className="p-3 rounded-xl bg-red-950/30 border border-red-500/30 text-red-200 text-xs">
-                  {depositError}
-                </div>
-              )}
-
-              <form onSubmit={handleDeposit} className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
-                    Monto
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    required
-                    value={depositAmount}
-                    onChange={(e) => setDepositAmount(e.target.value)}
-                    placeholder="0.00"
-                    disabled={isPending}
-                    className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-2">
-                  <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
-                    Categoría
-                  </span>
-                  <div className="grid grid-cols-3 gap-2">
-                    {allCategories.map((c) => (
-                      <button
-                        key={c.value}
-                        type="button"
-                        onClick={() => setDepositCategory(c.value)}
-                        className={`flex flex-col items-center gap-1 p-2 rounded-xl border text-center transition-all ${
-                          depositCategory === c.value
-                            ? "bg-[var(--color-primary)]/10 border-[var(--color-primary)] text-[var(--color-primary)]"
-                            : "bg-[var(--color-surface-2)] border-white/5 text-[var(--color-on-dim)]"
-                        }`}
-                      >
-                        <TranslateIcon iconKey={c.iconKey} size={16} />
-                        <span className="text-[9px] truncate w-full">{c.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
-                    Concepto / Nota (Opcional)
-                  </label>
-                  <input
-                    type="text"
-                    value={depositNote}
-                    onChange={(e) => setDepositNote(e.target.value)}
-                    placeholder="ej. Transferencia SPEI, Reembolso..."
-                    disabled={isPending}
-                    className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
-                  />
-                </div>
-
+          <div className="flex flex-col gap-2">
+            <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+              Categoría
+            </span>
+            <div className="grid grid-cols-3 gap-2">
+              {allCategories.map((c) => (
                 <button
-                  type="submit"
-                  disabled={isPending}
-                  className="h-11 w-full mt-2 rounded-xl bg-[var(--color-primary-ctr)] text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50"
+                  key={c.value}
+                  type="button"
+                  onClick={() => setDepositCategory(c.value)}
+                  className={`flex flex-col items-center gap-1 p-2 rounded-xl border text-center transition-all ${
+                    depositCategory === c.value
+                      ? "bg-[var(--color-primary)]/10 border-[var(--color-primary)] text-[var(--color-primary)]"
+                      : "bg-[var(--color-surface-2)] border-white/5 text-[var(--color-on-dim)]"
+                  }`}
                 >
-                  {isPending ? "Procesando..." : "Confirmar Ingreso"}
+                  <TranslateIcon iconKey={c.iconKey} size={16} />
+                  <span className="text-[9px] truncate w-full">{c.label}</span>
                 </button>
-              </form>
+              ))}
             </div>
-          </Drawer.Content>
-        </Drawer.Portal>
-      </Drawer.Root>
+          </div>
 
-      {/* 2. Expense Drawer */}
-      <Drawer.Root open={isExpenseOpen} onOpenChange={setIsExpenseOpen} direction="right">
-        <Drawer.Portal>
-          <Drawer.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 animate-in fade-in duration-200" />
-          <Drawer.Content className="fixed z-50 text-[var(--color-on-surface)] bg-[var(--color-surface-3)] focus:outline-none bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl border-t border-white/5 flex flex-col sm:top-0 sm:right-0 sm:left-auto sm:bottom-0 sm:w-[400px] sm:max-h-full sm:rounded-l-2xl sm:rounded-tr-none sm:border-l sm:border-t-0">
-            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-white/10 my-4 sm:hidden" />
-            <div className="flex-1 overflow-y-auto px-6 pb-8 sm:py-8 w-full flex flex-col gap-6">
-              <div className="flex items-center justify-between">
-                <Drawer.Title className="text-lg font-semibold tracking-tight text-red-300">
-                  Gastar desde {pocket.name}
-                </Drawer.Title>
-                <Drawer.Close className="text-[var(--color-on-dim)] hover:text-[var(--color-on-surface)]">
-                  <TranslateIcon iconKey="plus" size={20} className="rotate-45" />
-                </Drawer.Close>
-              </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+              Concepto / Nota (Opcional)
+            </label>
+            <input
+              type="text"
+              value={depositNote}
+              onChange={(e) => setDepositNote(e.target.value)}
+              placeholder="ej. Transferencia SPEI, Reembolso..."
+              disabled={isPending}
+              className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+            />
+          </div>
 
-              {expenseError && (
-                <div className="p-3 rounded-xl bg-red-950/30 border border-red-500/30 text-red-200 text-xs">
-                  {expenseError}
-                </div>
-              )}
+          <button
+            type="submit"
+            disabled={isPending}
+            className="h-11 w-full mt-2 rounded-xl bg-[var(--color-primary-ctr)] text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50"
+          >
+            {isPending ? "Procesando..." : "Confirmar Ingreso"}
+          </button>
+        </form>
+      </SlidePanel>
 
-              <form onSubmit={handleExpense} className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
-                    Monto
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    required
-                    value={expenseAmount}
-                    onChange={(e) => setExpenseAmount(e.target.value)}
-                    placeholder="0.00"
-                    disabled={isPending}
-                    className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
-                  />
-                </div>
+      {/* 2. Expense */}
+      <SlidePanel open={isExpenseOpen} onClose={() => setIsExpenseOpen(false)} title={`Gastar desde ${pocket.name}`} titleClassName="text-red-300">
+        {expenseError && (
+          <div className="p-3 rounded-xl bg-red-950/30 border border-red-500/30 text-red-200 text-xs">
+            {expenseError}
+          </div>
+        )}
+        <form onSubmit={handleExpense} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+              Monto
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              required
+              value={expenseAmount}
+              onChange={(e) => setExpenseAmount(e.target.value)}
+              placeholder="0.00"
+              disabled={isPending}
+              className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+            />
+          </div>
 
-                <div className="flex flex-col gap-2">
-                  <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
-                    Categoría
-                  </span>
-                  <div className="grid grid-cols-3 gap-2">
-                    {allCategories.map((c) => (
-                      <button
-                        key={c.value}
-                        type="button"
-                        onClick={() => setExpenseCategory(c.value)}
-                        className={`flex flex-col items-center gap-1 p-2 rounded-xl border text-center transition-all ${
-                          expenseCategory === c.value
-                            ? "bg-[var(--color-primary)]/10 border-[var(--color-primary)] text-[var(--color-primary)]"
-                            : "bg-[var(--color-surface-2)] border-white/5 text-[var(--color-on-dim)]"
-                        }`}
-                      >
-                        <TranslateIcon iconKey={c.iconKey} size={16} />
-                        <span className="text-[9px] truncate w-full">{c.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
-                    Concepto / Nota (Opcional)
-                  </label>
-                  <input
-                    type="text"
-                    value={expenseNote}
-                    onChange={(e) => setExpenseNote(e.target.value)}
-                    placeholder="ej. Súper, Gasolina, Netflix..."
-                    disabled={isPending}
-                    className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
-                  />
-                </div>
-
+          <div className="flex flex-col gap-2">
+            <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+              Categoría
+            </span>
+            <div className="grid grid-cols-3 gap-2">
+              {allCategories.map((c) => (
                 <button
-                  type="submit"
-                  disabled={isPending}
-                  className="h-11 w-full mt-2 rounded-xl bg-red-950/40 text-red-200 border border-red-500/20 font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50"
+                  key={c.value}
+                  type="button"
+                  onClick={() => setExpenseCategory(c.value)}
+                  className={`flex flex-col items-center gap-1 p-2 rounded-xl border text-center transition-all ${
+                    expenseCategory === c.value
+                      ? "bg-[var(--color-primary)]/10 border-[var(--color-primary)] text-[var(--color-primary)]"
+                      : "bg-[var(--color-surface-2)] border-white/5 text-[var(--color-on-dim)]"
+                  }`}
                 >
-                  {isPending ? "Procesando..." : "Confirmar Gasto"}
+                  <TranslateIcon iconKey={c.iconKey} size={16} />
+                  <span className="text-[9px] truncate w-full">{c.label}</span>
                 </button>
-              </form>
+              ))}
             </div>
-          </Drawer.Content>
-        </Drawer.Portal>
-      </Drawer.Root>
+          </div>
 
-      {/* 3. Transfer to Wallet Drawer */}
-      <Drawer.Root open={isTransferWalletOpen} onOpenChange={setIsTransferWalletOpen} direction="right">
-        <Drawer.Portal>
-          <Drawer.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 animate-in fade-in duration-200" />
-          <Drawer.Content className="fixed z-50 text-[var(--color-on-surface)] bg-[var(--color-surface-3)] focus:outline-none bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl border-t border-white/5 flex flex-col sm:top-0 sm:right-0 sm:left-auto sm:bottom-0 sm:w-[400px] sm:max-h-full sm:rounded-l-2xl sm:rounded-tr-none sm:border-l sm:border-t-0">
-            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-white/10 my-4 sm:hidden" />
-            <div className="flex-1 overflow-y-auto px-6 pb-8 sm:py-8 w-full flex flex-col gap-6">
-              <div className="flex items-center justify-between">
-                <Drawer.Title className="text-lg font-semibold tracking-tight">
-                  Retirar a Billetera disponible
-                </Drawer.Title>
-                <Drawer.Close className="text-[var(--color-on-dim)] hover:text-[var(--color-on-surface)]">
-                  <TranslateIcon iconKey="plus" size={20} className="rotate-45" />
-                </Drawer.Close>
+          <div className="flex flex-col gap-1.5">
+            <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+              Concepto / Nota (Opcional)
+            </label>
+            <input
+              type="text"
+              value={expenseNote}
+              onChange={(e) => setExpenseNote(e.target.value)}
+              placeholder="ej. Súper, Gasolina, Netflix..."
+              disabled={isPending}
+              className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={isPending}
+            className="h-11 w-full mt-2 rounded-xl bg-red-950/40 text-red-200 border border-red-500/20 font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50"
+          >
+            {isPending ? "Procesando..." : "Confirmar Gasto"}
+          </button>
+        </form>
+      </SlidePanel>
+
+      {/* 3. Transfer to Wallet */}
+      <SlidePanel open={isTransferWalletOpen} onClose={() => setIsTransferWalletOpen(false)} title="Retirar a Billetera disponible">
+        {transferWalletError && (
+          <div className="p-3 rounded-xl bg-red-950/30 border border-red-500/30 text-red-200 text-xs">
+            {transferWalletError}
+          </div>
+        )}
+        <form onSubmit={handleTransferWallet} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+              Monto a Transferir
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              required
+              value={transferWalletAmount}
+              onChange={(e) => setTransferWalletAmount(e.target.value)}
+              placeholder="0.00"
+              disabled={isPending}
+              className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+            />
+          </div>
+
+          <div className="text-xs text-[var(--color-on-dim)] leading-relaxed">
+            Esta acción moverá el dinero de tu tarjeta virtual <strong>{pocket.name}</strong> a tu balance general disponible, reduciendo el saldo del Pocket.
+          </div>
+
+          <button
+            type="submit"
+            disabled={isPending}
+            className="h-11 w-full mt-2 rounded-xl bg-[var(--color-primary-ctr)] text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50"
+          >
+            {isPending ? "Transfiriendo..." : "Confirmar Transferencia"}
+          </button>
+        </form>
+      </SlidePanel>
+
+      {/* 4. Transfer to Guardadito */}
+      <SlidePanel open={isTransferGuardaditoOpen} onClose={() => setIsTransferGuardaditoOpen(false)} title="Ahorrar en Guardadito">
+        {transferGuardaditoError && (
+          <div className="p-3 rounded-xl bg-red-950/30 border border-red-500/30 text-red-200 text-xs">
+            {transferGuardaditoError}
+          </div>
+        )}
+        <form onSubmit={handleTransferGuardadito} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+              Monto a Ahorrar
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              required
+              value={transferGuardaditoAmount}
+              onChange={(e) => setTransferGuardaditoAmount(e.target.value)}
+              placeholder="0.00"
+              disabled={isPending}
+              className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+              Selecciona Guardadito
+            </label>
+            <select
+              value={selectedGuardaditoId}
+              onChange={(e) => setSelectedGuardaditoId(e.target.value)}
+              className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+            >
+              {guardaditos.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.name} ({g.formattedAmount})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="text-xs text-[var(--color-on-dim)] leading-relaxed">
+            Esta acción transferirá fondos directamente desde tu pocket <strong>{pocket.name}</strong> a la meta de ahorro seleccionada, aumentando su balance sin afectar la billetera general disponible.
+          </div>
+
+          <button
+            type="submit"
+            disabled={isPending}
+            className="h-11 w-full mt-2 rounded-xl bg-[var(--color-primary-ctr)] text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50"
+          >
+            {isPending ? "Ahorrando..." : "Confirmar Ahorro"}
+          </button>
+        </form>
+      </SlidePanel>
+
+      {/* 5. Edit Card */}
+      <SlidePanel open={isEditOpen} onClose={() => setIsEditOpen(false)} title="Editar Tarjeta">
+        {editError && (
+          <div className="p-3 rounded-xl bg-red-950/30 border border-red-500/30 text-red-200 text-xs">
+            {editError}
+          </div>
+        )}
+        <form onSubmit={handleEdit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+              Nombre
+            </label>
+            <input
+              type="text"
+              required
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              disabled={isPending}
+              className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+              Subtítulo / Nota corta
+            </label>
+            <input
+              type="text"
+              value={editSubtitle}
+              onChange={(e) => setEditSubtitle(e.target.value)}
+              disabled={isPending}
+              className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+            />
+          </div>
+
+          {!pocket.custom_design && (
+            <div className="flex flex-col gap-2">
+              <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+                Diseño / Preset
+              </span>
+              <div className="grid grid-cols-2 gap-2">
+                {(Object.keys(POCKET_PRESETS) as Array<keyof typeof POCKET_PRESETS>).map((key) => {
+                  const preset = POCKET_PRESETS[key];
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setEditPreset(key)}
+                      className={`p-2.5 rounded-xl border text-xs font-semibold truncate transition-all text-left ${
+                        editPreset === key
+                          ? "border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--color-primary)]"
+                          : "border-white/5"
+                      }`}
+                      style={{ background: preset.bg }}
+                    >
+                      {key.replace("-", " ")}
+                    </button>
+                  );
+                })}
               </div>
-
-              {transferWalletError && (
-                <div className="p-3 rounded-xl bg-red-950/30 border border-red-500/30 text-red-200 text-xs">
-                  {transferWalletError}
-                </div>
-              )}
-
-              <form onSubmit={handleTransferWallet} className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
-                    Monto a Transferir
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    required
-                    value={transferWalletAmount}
-                    onChange={(e) => setTransferWalletAmount(e.target.value)}
-                    placeholder="0.00"
-                    disabled={isPending}
-                    className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
-                  />
-                </div>
-
-                <div className="text-xs text-[var(--color-on-dim)] leading-relaxed">
-                  Esta acción moverá el dinero de tu tarjeta virtual <strong>{pocket.name}</strong> a tu balance general disponible, reduciendo el saldo del Pocket.
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="h-11 w-full mt-2 rounded-xl bg-[var(--color-primary-ctr)] text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50"
-                >
-                  {isPending ? "Transfiriendo..." : "Confirmar Transferencia"}
-                </button>
-              </form>
             </div>
-          </Drawer.Content>
-        </Drawer.Portal>
-      </Drawer.Root>
+          )}
 
-      {/* 4. Transfer to Guardadito Drawer */}
-      <Drawer.Root open={isTransferGuardaditoOpen} onOpenChange={setIsTransferGuardaditoOpen} direction="right">
-        <Drawer.Portal>
-          <Drawer.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 animate-in fade-in duration-200" />
-          <Drawer.Content className="fixed z-50 text-[var(--color-on-surface)] bg-[var(--color-surface-3)] focus:outline-none bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl border-t border-white/5 flex flex-col sm:top-0 sm:right-0 sm:left-auto sm:bottom-0 sm:w-[400px] sm:max-h-full sm:rounded-l-2xl sm:rounded-tr-none sm:border-l sm:border-t-0">
-            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-white/10 my-4 sm:hidden" />
-            <div className="flex-1 overflow-y-auto px-6 pb-8 sm:py-8 w-full flex flex-col gap-6">
-              <div className="flex items-center justify-between">
-                <Drawer.Title className="text-lg font-semibold tracking-tight">
-                  Ahorrar en Guardadito
-                </Drawer.Title>
-                <Drawer.Close className="text-[var(--color-on-dim)] hover:text-[var(--color-on-surface)]">
-                  <TranslateIcon iconKey="plus" size={20} className="rotate-45" />
-                </Drawer.Close>
+          <button
+            type="submit"
+            disabled={isPending}
+            className="h-11 w-full mt-2 rounded-xl bg-[var(--color-primary-ctr)] text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50"
+          >
+            {isPending ? "Guardando..." : "Guardar Cambios"}
+          </button>
+        </form>
+      </SlidePanel>
+
+      {/* 6. Delete Confirmation */}
+      <SlidePanel open={isDeleteOpen} onClose={() => handleOpenDeleteChange(false)} title="¿Eliminar Tarjeta?" titleClassName="text-red-300">
+        <div className="bg-red-950/20 border border-red-900/30 p-3 rounded-lg text-xs text-red-200 leading-relaxed">
+          ⚠️ <strong>Esta acción es irreversible.</strong> Se eliminará la tarjeta <strong>{pocket.name}</strong> y su historial de transacciones.
+        </div>
+
+        <form onSubmit={handleDelete} className="flex flex-col gap-5">
+          {pocket.balance > 0 && (
+            <div className="flex items-start gap-3 p-3.5 rounded-xl bg-[var(--color-surface-2)] border border-white/5">
+              <input
+                type="checkbox"
+                id="transfer-remaining"
+                checked={transferRemaining}
+                onChange={(e) => setTransferRemaining(e.target.checked)}
+                className="mt-0.5"
+              />
+              <div className="flex flex-col">
+                <label htmlFor="transfer-remaining" className="text-xs font-semibold text-[var(--color-on-surface)] select-none cursor-pointer">
+                  Transferir saldo restante a Billetera
+                </label>
+                <span className="text-[10px] text-[var(--color-on-dim)] mt-0.5 leading-normal">
+                  Mueve ${pocket.balance.toFixed(2)} de saldo a tu balance disponible general antes de borrar la tarjeta.
+                </span>
               </div>
-
-              {transferGuardaditoError && (
-                <div className="p-3 rounded-xl bg-red-950/30 border border-red-500/30 text-red-200 text-xs">
-                  {transferGuardaditoError}
-                </div>
-              )}
-
-              <form onSubmit={handleTransferGuardadito} className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
-                    Monto a Ahorrar
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    required
-                    value={transferGuardaditoAmount}
-                    onChange={(e) => setTransferGuardaditoAmount(e.target.value)}
-                    placeholder="0.00"
-                    disabled={isPending}
-                    className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
-                    Selecciona Guardadito
-                  </label>
-                  <select
-                    value={selectedGuardaditoId}
-                    onChange={(e) => setSelectedGuardaditoId(e.target.value)}
-                    className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
-                  >
-                    {guardaditos.map((g) => (
-                      <option key={g.id} value={g.id}>
-                        {g.name} ({g.formattedAmount})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="text-xs text-[var(--color-on-dim)] leading-relaxed">
-                  Esta acción transferirá fondos directamente desde tu pocket <strong>{pocket.name}</strong> a la meta de ahorro seleccionada, aumentando su balance sin afectar la billetera general disponible.
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="h-11 w-full mt-2 rounded-xl bg-[var(--color-primary-ctr)] text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50"
-                >
-                  {isPending ? "Ahorrando..." : "Confirmar Ahorro"}
-                </button>
-              </form>
             </div>
-          </Drawer.Content>
-        </Drawer.Portal>
-      </Drawer.Root>
+          )}
 
-      {/* 5. Edit Card Details Drawer */}
-      <Drawer.Root open={isEditOpen} onOpenChange={setIsEditOpen} direction="right">
-        <Drawer.Portal>
-          <Drawer.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 animate-in fade-in duration-200" />
-          <Drawer.Content className="fixed z-50 text-[var(--color-on-surface)] bg-[var(--color-surface-3)] focus:outline-none bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl border-t border-white/5 flex flex-col sm:top-0 sm:right-0 sm:left-auto sm:bottom-0 sm:w-[400px] sm:max-h-full sm:rounded-l-2xl sm:rounded-tr-none sm:border-l sm:border-t-0">
-            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-white/10 my-4 sm:hidden" />
-            <div className="flex-1 overflow-y-auto px-6 pb-8 sm:py-8 w-full flex flex-col gap-6">
-              <div className="flex items-center justify-between">
-                <Drawer.Title className="text-lg font-semibold tracking-tight">
-                  Editar Tarjeta
-                </Drawer.Title>
-                <Drawer.Close className="text-[var(--color-on-dim)] hover:text-[var(--color-on-surface)]">
-                  <TranslateIcon iconKey="plus" size={20} className="rotate-45" />
-                </Drawer.Close>
-              </div>
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="delete-confirm" className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+              Escribe <span className="text-red-400 font-bold select-all">"{pocket.name}"</span> para confirmar
+            </label>
+            <input
+              id="delete-confirm"
+              type="text"
+              required
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              placeholder="Nombre de la tarjeta..."
+              className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-red-500 transition-all"
+            />
+          </div>
 
-              {editError && (
-                <div className="p-3 rounded-xl bg-red-950/30 border border-red-500/30 text-red-200 text-xs">
-                  {editError}
-                </div>
-              )}
-
-              <form onSubmit={handleEdit} className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
-                    Nombre
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={editName}
-                    onChange={(e) => setEditName(e.target.value)}
-                    disabled={isPending}
-                    className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
-                    Subtítulo / Nota corta
-                  </label>
-                  <input
-                    type="text"
-                    value={editSubtitle}
-                    onChange={(e) => setEditSubtitle(e.target.value)}
-                    disabled={isPending}
-                    className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
-                  />
-                </div>
-
-                {!pocket.custom_design && (
-                  <div className="flex flex-col gap-2">
-                    <span className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
-                      Diseño / Preset
-                    </span>
-                    <div className="grid grid-cols-2 gap-2">
-                      {(Object.keys(POCKET_PRESETS) as Array<keyof typeof POCKET_PRESETS>).map((key) => {
-                        const preset = POCKET_PRESETS[key];
-                        return (
-                          <button
-                            key={key}
-                            type="button"
-                            onClick={() => setEditPreset(key)}
-                            className={`p-2.5 rounded-xl border text-xs font-semibold truncate transition-all text-left ${
-                              editPreset === key
-                                ? "border-[var(--color-primary)] bg-[var(--color-primary)]/10 text-[var(--color-primary)]"
-                                : "border-white/5"
-                            }`}
-                            style={{ background: preset.bg }}
-                          >
-                            {key.replace("-", " ")}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="h-11 w-full mt-2 rounded-xl bg-[var(--color-primary-ctr)] text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50"
-                >
-                  {isPending ? "Guardando..." : "Guardar Cambios"}
-                </button>
-              </form>
-            </div>
-          </Drawer.Content>
-        </Drawer.Portal>
-      </Drawer.Root>
-
-      {/* 6. Delete Confirmation Drawer */}
-      <Drawer.Root open={isDeleteOpen} onOpenChange={handleOpenDeleteChange} direction="right">
-        <Drawer.Portal>
-          <Drawer.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 animate-in fade-in duration-200" />
-          <Drawer.Content className="fixed z-50 text-[var(--color-on-surface)] bg-[var(--color-surface-3)] focus:outline-none bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl border-t border-white/5 flex flex-col sm:top-0 sm:right-0 sm:left-auto sm:bottom-0 sm:w-[400px] sm:max-h-full sm:rounded-l-2xl sm:rounded-tr-none sm:border-l sm:border-t-0">
-            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-white/10 my-4 sm:hidden" />
-            <div className="flex-1 overflow-y-auto px-6 pb-8 sm:py-8 w-full flex flex-col gap-6">
-              <div className="flex items-center justify-between">
-                <Drawer.Title className="text-lg font-semibold tracking-tight text-red-300">
-                  ¿Eliminar Tarjeta?
-                </Drawer.Title>
-                <Drawer.Close className="text-[var(--color-on-dim)] hover:text-[var(--color-on-surface)]">
-                  <TranslateIcon iconKey="plus" size={20} className="rotate-45" />
-                </Drawer.Close>
-              </div>
-
-              <div className="bg-red-950/20 border border-red-900/30 p-3 rounded-lg text-xs text-red-200 leading-relaxed">
-                ⚠️ <strong>Esta acción es irreversible.</strong> Se eliminará la tarjeta <strong>{pocket.name}</strong> y su historial de transacciones.
-              </div>
-
-              <form onSubmit={handleDelete} className="flex flex-col gap-5">
-                {pocket.balance > 0 && (
-                  <div className="flex items-start gap-3 p-3.5 rounded-xl bg-[var(--color-surface-2)] border border-white/5">
-                    <input
-                      type="checkbox"
-                      id="transfer-remaining"
-                      checked={transferRemaining}
-                      onChange={(e) => setTransferRemaining(e.target.checked)}
-                      className="mt-0.5"
-                    />
-                    <div className="flex flex-col">
-                      <label htmlFor="transfer-remaining" className="text-xs font-semibold text-[var(--color-on-surface)] select-none cursor-pointer">
-                        Transferir saldo restante a Billetera
-                      </label>
-                      <span className="text-[10px] text-[var(--color-on-dim)] mt-0.5 leading-normal">
-                        Mueve ${pocket.balance.toFixed(2)} de saldo a tu balance disponible general antes de borrar la tarjeta.
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex flex-col gap-1.5">
-                  <label htmlFor="delete-confirm" className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
-                    Escribe <span className="text-red-400 font-bold select-all">"{pocket.name}"</span> para confirmar
-                  </label>
-                  <input
-                    id="delete-confirm"
-                    type="text"
-                    required
-                    value={deleteConfirmText}
-                    onChange={(e) => setDeleteConfirmText(e.target.value)}
-                    placeholder="Nombre de la tarjeta..."
-                    className="h-11 w-full rounded-xl bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-red-500 transition-all"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isPending || deleteConfirmText.trim().toLowerCase() !== pocket.name.trim().toLowerCase()}
-                  className="h-11 w-full rounded-xl bg-red-650 hover:bg-red-700 text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-30"
-                  style={{ backgroundColor: "rgb(185, 28, 28)" }}
-                >
-                  {isPending ? "Eliminando..." : "Eliminar Definitivamente"}
-                </button>
-              </form>
-            </div>
-          </Drawer.Content>
-        </Drawer.Portal>
-      </Drawer.Root>
-    </div>
+          <button
+            type="submit"
+            disabled={isPending || deleteConfirmText.trim().toLowerCase() !== pocket.name.trim().toLowerCase()}
+            className="h-11 w-full rounded-xl text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-30"
+            style={{ backgroundColor: "rgb(185, 28, 28)" }}
+          >
+            {isPending ? "Eliminando..." : "Eliminar Definitivamente"}
+          </button>
+        </form>
+      </SlidePanel>
+    </>
   );
 }
+
+

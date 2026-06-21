@@ -74,8 +74,8 @@ export default function Sidebar({ onFabClick }: SidebarProps) {
       </nav>
 
       <div className="mt-auto pt-6 border-t border-white/5">
-        <button
-          onClick={onFabClick}
+        <Link
+          href="/transaction/new"
           className="
             w-full flex items-center justify-center gap-2
             h-12 rounded-xl
@@ -90,7 +90,7 @@ export default function Sidebar({ onFabClick }: SidebarProps) {
         >
           <TranslateIcon iconKey="plus" size={16} />
           NUEVA TRANSACCIÓN
-        </button>
+        </Link>
       </div>
     </aside>
   );

@@ -128,8 +128,6 @@ export default async function DashboardPage() {
 
   return (
     <DashboardView
-      userName={userName}
-      avatarUrl={avatarUrl}
       portfolio={portfolioFormatted}
       guardaditos={guardaditos}
       pockets={pockets}

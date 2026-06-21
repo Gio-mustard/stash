@@ -12,16 +12,10 @@ export default async function WalletPage() {
 
   // ── Parallel data fetching ─────────────────────────────────────────────────
   const [
-    { data: profile },
     { data: portfolio },
     { data: guardaditos },
     { data: dbPockets },
   ] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("username, avatar_url")
-      .eq("id", user.id)
-      .single(),
     supabase
       .from("portfolios")
       .select("balance")
@@ -39,8 +33,6 @@ export default async function WalletPage() {
   ]);
   // ──────────────────────────────────────────────────────────────────────────
 
-  const userName = profile?.username || user.email?.split("@")[0] || "User";
-  const avatarUrl = profile?.avatar_url || null;
   const walletBalance = portfolio ? Number(portfolio.balance) : 0;
   const guardaditosTotal = (guardaditos || []).reduce((sum, g) => sum + Number(g.current), 0);
 
@@ -57,8 +49,6 @@ export default async function WalletPage() {
 
   return (
     <WalletView
-      userName={userName}
-      avatarUrl={avatarUrl}
       pockets={pockets}
       walletBalance={walletBalance}
       guardaditosTotal={guardaditosTotal}

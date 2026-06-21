@@ -49,7 +49,6 @@ export default async function GuardaditoPage({ params }: GuardaditoPageProps) {
   // ── Parallel data fetching for remaining independent queries ───────────────
   const [
     { data: dbTransactions },
-    { data: profile },
     { data: dbGuardaditos },
     { data: portfolio },
     { data: dbCustomCategories },
@@ -60,11 +59,6 @@ export default async function GuardaditoPage({ params }: GuardaditoPageProps) {
       .eq("guardadito_id", id)
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
-    supabase
-      .from("profiles")
-      .select("username, avatar_url")
-      .eq("id", user.id)
-      .single(),
     supabase
       .from("guardaditos")
       .select("id, name, icon, current, target, theme_index")
@@ -91,9 +85,6 @@ export default async function GuardaditoPage({ params }: GuardaditoPageProps) {
     title: row.title,
   }));
 
-  const userName = profile?.username || user.email?.split("@")[0] || "User";
-  const avatarUrl = profile?.avatar_url ?? null;
-
   const guardaditos = (dbGuardaditos || []).map((row) => ({
     id: row.id,
     name: row.name,
@@ -114,8 +105,6 @@ export default async function GuardaditoPage({ params }: GuardaditoPageProps) {
 
   return (
     <GuardaditosDetailView
-      userName={userName}
-      avatarUrl={avatarUrl}
       guardadito={guardadito}
       transactions={transactions}
       guardaditos={guardaditos}

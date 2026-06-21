@@ -42,7 +42,6 @@ export default async function PocketPage({ params }: PocketPageProps) {
   // ── Parallel data fetching for remaining independent queries ───────────────
   const [
     { data: dbTransactions },
-    { data: profile },
     { data: dbGuardaditos },
     { data: dbCustomCategories },
   ] = await Promise.all([
@@ -52,11 +51,6 @@ export default async function PocketPage({ params }: PocketPageProps) {
       .eq("pocket_id", id)
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
-    supabase
-      .from("profiles")
-      .select("username, avatar_url")
-      .eq("id", user.id)
-      .single(),
     supabase
       .from("guardaditos")
       .select("id, name, icon, current, target, theme_index")
@@ -79,9 +73,6 @@ export default async function PocketPage({ params }: PocketPageProps) {
     icon: row.icon || undefined,
   }));
 
-  const userName = profile?.username || user.email?.split("@")[0] || "User";
-  const avatarUrl = profile?.avatar_url ?? null;
-
   const guardaditos = (dbGuardaditos || []).map((row) => ({
     id: row.id,
     name: row.name,
@@ -100,8 +91,6 @@ export default async function PocketPage({ params }: PocketPageProps) {
 
   return (
     <PocketDetailView
-      userName={userName}
-      avatarUrl={avatarUrl}
       pocket={pocket}
       transactions={transactions}
       guardaditos={guardaditos}

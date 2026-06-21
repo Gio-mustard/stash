@@ -1,17 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import TranslateIcon from "./translateIcon";
 import PocketCard, { PocketData } from "./PocketCard";
 import CreatePocketDrawer from "./CreatePocketDrawer";
-import TopBar from "./TopBar";
-import Sidebar from "./Sidebar";
-import BottomNav from "./BottomNav";
 import Link from "next/link";
 
 type WalletViewProps = {
-  userName: string;
-  avatarUrl?: string | null;
   pockets: PocketData[];
   walletBalance: number;
   guardaditosTotal: number;
@@ -19,14 +15,26 @@ type WalletViewProps = {
 };
 
 export default function WalletView({
-  userName,
-  avatarUrl,
   pockets,
   walletBalance,
   guardaditosTotal,
   pocketsTotal,
 }: WalletViewProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get("drawer") === "pocket") {
+      setIsCreateOpen(true);
+    }
+  }, [searchParams]);
+
+  const handleCloseDrawer = () => {
+    setIsCreateOpen(false);
+    // Remove query param
+    router.replace("/wallet");
+  };
 
   const totalGeneral = walletBalance + guardaditosTotal + pocketsTotal;
 
@@ -36,13 +44,8 @@ export default function WalletView({
   }).format(totalGeneral);
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen w-full bg-[var(--color-bg)]">
-      <Sidebar onFabClick={() => setIsCreateOpen(true)} />
-
-      <div className="flex-1 flex flex-col min-h-screen">
-        <TopBar userName={userName} avatarUrl={avatarUrl} />
-
-        <main className="flex-1 overflow-y-auto px-6 py-6 pb-20 w-full max-w-4xl mx-auto flex flex-col gap-8">
+    <>
+      <main className="flex-1 overflow-y-auto px-6 py-6 pb-20 w-full max-w-4xl mx-auto flex flex-col gap-8">
           {/* Header section with Total General */}
           <section
             aria-label="Total Wallet Balance"
@@ -153,12 +156,15 @@ export default function WalletView({
               </div>
             )}
           </section>
-        </main>
-      </div>
+      </main>
 
-      <BottomNav />
-
-      <CreatePocketDrawer isOpen={isCreateOpen} onOpenChange={setIsCreateOpen} />
-    </div>
+      <CreatePocketDrawer
+        isOpen={isCreateOpen}
+        onOpenChange={(open) => {
+          if (!open) handleCloseDrawer();
+          else setIsCreateOpen(true);
+        }}
+      />
+    </>
   );
 }

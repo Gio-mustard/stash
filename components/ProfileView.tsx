@@ -3,7 +3,7 @@
 import React, { useTransition, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Drawer } from "vaul";
+import SlidePanel from "./SlidePanel";
 import { updateProfile, logout, deleteAccount, uploadAvatar } from "@/app/actions_extended";
 import TranslateIcon from "@/components/translateIcon";
 
@@ -273,56 +273,36 @@ export default function ProfileView({
         </div>
       </section>
 
-      {/* Delete Account Drawer */}
-      <Drawer.Root open={isDeleteOpen} onOpenChange={setIsDeleteOpen} direction="right">
-        <Drawer.Portal>
-          <Drawer.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 animate-in fade-in duration-200" />
-          <Drawer.Content className="
-            fixed z-50 text-[var(--color-on-surface)] bg-[var(--color-surface-3)] focus:outline-none
-            bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl border-t border-white/5 flex flex-col
-            sm:top-0 sm:right-0 sm:left-auto sm:bottom-0 sm:w-[400px] sm:max-h-full sm:rounded-l-2xl sm:rounded-tr-none sm:border-l sm:border-t-0
-          ">
-            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-white/10 my-4 sm:hidden" />
-            <div className="flex-1 overflow-y-auto px-6 pb-8 sm:py-8 w-full">
-              <div className="flex items-center justify-between mb-6">
-                <Drawer.Title className="text-lg font-semibold tracking-tight text-red-400">
-                  Eliminar Cuenta
-                </Drawer.Title>
-                <Drawer.Close className="text-[var(--color-on-dim)] hover:text-[var(--color-on-surface)]">
-                  <TranslateIcon iconKey="plus" size={20} className="rotate-45" />
-                </Drawer.Close>
-              </div>
-              <div className="bg-red-950/20 border border-red-900/30 p-4 rounded-lg text-xs text-red-200 leading-relaxed mb-6 flex flex-col gap-2">
-                <span className="font-bold text-red-300">⚠️ ¡Esta acción es irreversible y permanente!</span>
-                <span>Se eliminarán todos tus datos financieros, balances, guardaditos y transacciones de Stash.</span>
-              </div>
-              <form onSubmit={handleDeleteAccount} className="flex flex-col gap-4">
-                <div className="flex flex-col gap-2">
-                  <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
-                    Para confirmar, escribe <span className="text-white font-mono">eliminar mi cuenta</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={confirmDeleteText}
-                    onChange={(e) => setConfirmDeleteText(e.target.value)}
-                    placeholder="eliminar mi cuenta"
-                    disabled={isPending}
-                    className="h-11 w-full rounded-lg bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-red-500/50 transition-all font-mono"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={isPending || confirmDeleteText !== "eliminar mi cuenta"}
-                  className="h-11 w-full mt-2 rounded-xl bg-red-700 hover:bg-red-600 disabled:bg-red-950/40 text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Eliminar Mi Cuenta Permanentemente
-                </button>
-              </form>
-            </div>
-          </Drawer.Content>
-        </Drawer.Portal>
-      </Drawer.Root>
+      {/* Delete Account Modal */}
+      <SlidePanel open={isDeleteOpen} onClose={() => setIsDeleteOpen(false)} title="Eliminar Cuenta" titleClassName="text-red-400">
+        <div className="bg-red-950/20 border border-red-900/30 p-4 rounded-lg text-xs text-red-200 leading-relaxed flex flex-col gap-2">
+          <span className="font-bold text-red-300">⚠️ ¡Esta acción es irreversible y permanente!</span>
+          <span>Se eliminarán todos tus datos financieros, balances, guardaditos y transacciones de Stash.</span>
+        </div>
+        <form onSubmit={handleDeleteAccount} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+              Para confirmar, escribe <span className="text-white font-mono">eliminar mi cuenta</span>
+            </label>
+            <input
+              type="text"
+              required
+              value={confirmDeleteText}
+              onChange={(e) => setConfirmDeleteText(e.target.value)}
+              placeholder="eliminar mi cuenta"
+              disabled={isPending}
+              className="h-11 w-full rounded-lg bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-red-500/50 transition-all font-mono"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={isPending || confirmDeleteText !== "eliminar mi cuenta"}
+            className="h-11 w-full mt-2 rounded-xl bg-red-700 hover:bg-red-600 disabled:bg-red-950/40 text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Eliminar Mi Cuenta Permanentemente
+          </button>
+        </form>
+      </SlidePanel>
     </div>
   );
 }

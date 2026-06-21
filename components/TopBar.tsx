@@ -33,8 +33,8 @@ export default function TopBar({
         sticky top-0 z-50
         flex items-center justify-between gap-4
         px-6 py-5
-        bg-[var(--color-bg)]/80 lg:bg-transparent
-        backdrop-blur-md lg:backdrop-blur-none
+        bg-[var(--color-bg)]/80 
+        backdrop-blur-md 
         border-b border-white/5 lg:border-none
         w-full max-w-6xl mx-auto
 

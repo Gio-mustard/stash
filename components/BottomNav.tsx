@@ -86,13 +86,22 @@ export default function BottomNav({ onCreateAction }: BottomNavProps) {
 
   const handleCreateOption = (action: CreateAction) => {
     setIsFabOpen(false);
-    if (onCreateAction) {
-      onCreateAction(action);
+    if (action === "expense") {
+      router.push("/transaction/new?type=EXPENSE");
       return;
     }
-    // Default fallback: navigate to the relevant page
-    if (action === "pocket") router.push("/wallet");
-    if (action === "guardadito") router.push("/");
+    if (action === "income") {
+      router.push("/transaction/new?type=INCOME");
+      return;
+    }
+    if (action === "pocket") {
+      router.push("/wallet?drawer=pocket");
+      return;
+    }
+    if (action === "guardadito") {
+      router.push("/?drawer=guardadito");
+      return;
+    }
   };
 
   return (

@@ -1,22 +1,17 @@
 "use client";
 
 import React, { useState, useTransition } from "react";
-import { Drawer } from "vaul";
+import SlidePanel from "./SlidePanel";
 import TranslateIcon from "@/components/translateIcon";
 import { updateGuardaditoDetails, quickDepositOrWithdraw } from "@/app/actions";
 import { deleteGuardadito } from "@/app/actions_extended";
-import TopBar from "./TopBar";
-import Sidebar from "./Sidebar";
-import BottomNav from "./BottomNav";
 import BackBreadcrumb from "./BackBreadcrumb";
-import TransactionModal from "./TransactionModal";
 import { createTransaction } from "@/app/actions";
+import { useBreadcrumbs } from "@/lib/BreadcrumbContext";
 
 import type { CustomCategory } from "./DashboardView";
 
 type GuardaditosDetailViewProps = {
-  userName: string;
-  avatarUrl?: string | null;
   guardadito: {
     id: string;
     name: string;
@@ -70,14 +65,18 @@ const THEMES = [
  * Features an SVG sparkline, notes editor, and Vaul Drawers for quick deposit/withdrawals.
  */
 export default function GuardaditosDetailView({
-  userName,
-  avatarUrl,
   guardadito,
   transactions,
   guardaditos,
   customCategories,
   walletBalance,
 }: GuardaditosDetailViewProps) {
+  useBreadcrumbs({
+    parentHref: "/",
+    parentLabel: "Dashboard",
+    last: guardadito.name,
+  });
+
   const [isPending, startTransition] = useTransition();
   const [notes, setNotes] = useState(guardadito.notes || "");
   const [link, setLink] = useState(guardadito.link || "");
@@ -93,27 +92,10 @@ export default function GuardaditosDetailView({
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [confirmDeleteText, setConfirmDeleteText] = useState("");
 
-  // Transaction Modal State (triggered by Sidebar FAB)
-  const [txModalState, setTxModalState] = useState<{
-    isOpen: boolean;
-    type: "EXPENSE" | "INCOME";
-  }>({
-    isOpen: false,
-    type: "EXPENSE",
-  });
-
   const theme = THEMES[guardadito.themeIndex % THEMES.length];
   const progressPercent = guardadito.target && guardadito.target > 0
     ? Math.min((guardadito.current / guardadito.target) * 100, 100)
     : 0;
-
-  const openTxModal = (type: "EXPENSE" | "INCOME") => {
-    setTxModalState({ isOpen: true, type });
-  };
-
-  const closeTxModal = () => {
-    setTxModalState((prev) => ({ ...prev, isOpen: false }));
-  };
 
   /**
    * Triggers the server action to save links and notes.
@@ -268,21 +250,8 @@ export default function GuardaditosDetailView({
   });
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen w-full bg-[var(--color-bg)]">
-      <Sidebar onFabClick={() => openTxModal("EXPENSE")} />
-
-      <div className="flex-1 flex flex-col min-h-screen">
-        <TopBar 
-          userName={userName} 
-          avatarUrl={avatarUrl} 
-          breadcrumbOptions={{
-            parentHref: "/",
-            parentLabel: "Dashboard",
-            last: guardadito.name
-          }}
-        />
-
-        <main className="flex-1 overflow-y-auto px-6 py-6 pb-20 w-full max-w-4xl mx-auto flex flex-col gap-8">
+    <>
+      <div className="w-full max-w-4xl mx-auto px-6 py-6 pb-20 flex flex-col gap-8">
           {/* Header Card / Progress */}
           <div
             style={{ background: theme.gradient, boxShadow: `0 0 30px ${theme.glowColor}` }}
@@ -627,227 +596,145 @@ export default function GuardaditosDetailView({
               Eliminar Guardadito
             </button>
           </div>
-        </main>
-      </div>
+        </div>
 
-      <BottomNav />
-
-      {/* Deposit Drawer (Vaul) */}
-      <Drawer.Root open={isDepositOpen} onOpenChange={(open) => {
-        if (!open) setDepositError(null);
-        setIsDepositOpen(open);
-      }} direction="right">
-        <Drawer.Portal>
-          <Drawer.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 animate-in fade-in duration-200" />
-          <Drawer.Content className="
-            fixed z-50 text-[var(--color-on-surface)] bg-[var(--color-surface-3)] focus:outline-none
-            /* Mobile: bottom-to-top */
-            bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl border-t border-white/5 flex flex-col
-            /* Desktop: right-to-left side-drawer */
-            sm:top-0 sm:right-0 sm:left-auto sm:bottom-0 sm:w-[400px] sm:max-h-full sm:rounded-l-2xl sm:rounded-tr-none sm:border-l sm:border-t-0
-          ">
-            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-white/10 my-4 sm:hidden" />
-            <div className="flex-1 overflow-y-auto px-6 pb-8 sm:py-8 w-full">
-              <div className="flex items-center justify-between mb-6">
-                <Drawer.Title className="text-lg font-semibold tracking-tight">
-                  Depositar en {guardadito.name}
-                </Drawer.Title>
-                <Drawer.Close className="text-[var(--color-on-dim)] hover:text-[var(--color-on-surface)]">
-                  <TranslateIcon iconKey="plus" size={20} className="rotate-45" />
-                </Drawer.Close>
-              </div>
-
-              {depositError && (
-                <div className="mb-4 p-3 rounded-xl bg-red-950/30 border border-red-500/30 text-red-200 text-xs flex items-start gap-2 animate-in fade-in duration-200">
-                  <TranslateIcon iconKey="emergency" size={14} className="shrink-0 mt-0.5 text-red-400" />
-                  <div className="flex-1">
-                    <p className="font-semibold text-red-300">Error</p>
-                    <p className="opacity-90">{depositError}</p>
-                  </div>
-                  <button type="button" onClick={() => setDepositError(null)} className="opacity-65 hover:opacity-100 transition-opacity">
-                    <TranslateIcon iconKey="plus" size={12} className="rotate-45" />
-                  </button>
-                </div>
-              )}
-
-              <form onSubmit={handleDepositSubmit} className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <div className="flex justify-between items-center">
-                    <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
-                      Cantidad a ahorrar ($)
-                    </label>
-                    <span className="text-[10px] text-[var(--color-on-dim)] font-semibold">
-                      Disponible: ${walletBalance.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                  <input
-                    type="number"
-                    step="0.01"
-                    required
-                    value={depositAmount}
-                    onChange={(e) => {
-                      setDepositAmount(e.target.value);
-                      setDepositError(null);
-                    }}
-                    placeholder="0.00"
-                    disabled={isPending}
-                    className="h-11 w-full rounded-lg bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="h-11 w-full mt-2 rounded-xl bg-[var(--color-primary-ctr)] text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50"
-                >
-                  Confirmar Depósito
-                </button>
-              </form>
+      {/* Deposit Modal */}
+      <SlidePanel
+        open={isDepositOpen}
+        onClose={() => { setDepositError(null); setIsDepositOpen(false); }}
+        title={`Depositar en ${guardadito.name}`}
+      >
+        {depositError && (
+          <div className="p-3 rounded-xl bg-red-950/30 border border-red-500/30 text-red-200 text-xs flex items-start gap-2 animate-in fade-in duration-200">
+            <TranslateIcon iconKey="emergency" size={14} className="shrink-0 mt-0.5 text-red-400" />
+            <div className="flex-1">
+              <p className="font-semibold text-red-300">Error</p>
+              <p className="opacity-90">{depositError}</p>
             </div>
-          </Drawer.Content>
-        </Drawer.Portal>
-      </Drawer.Root>
-
-      {/* Withdraw Drawer (Vaul) */}
-      <Drawer.Root open={isWithdrawOpen} onOpenChange={(open) => {
-        if (!open) setWithdrawError(null);
-        setIsWithdrawOpen(open);
-      }} direction="right">
-        <Drawer.Portal>
-          <Drawer.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 animate-in fade-in duration-200" />
-          <Drawer.Content className="
-            fixed z-50 text-[var(--color-on-surface)] bg-[var(--color-surface-3)] focus:outline-none
-            /* Mobile: bottom-to-top */
-            bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl border-t border-white/5 flex flex-col
-            /* Desktop: right-to-left side-drawer */
-            sm:top-0 sm:right-0 sm:left-auto sm:bottom-0 sm:w-[400px] sm:max-h-full sm:rounded-l-2xl sm:rounded-tr-none sm:border-l sm:border-t-0
-          ">
-            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-white/10 my-4 sm:hidden" />
-            <div className="flex-1 overflow-y-auto px-6 pb-8 sm:py-8 w-full">
-              <div className="flex items-center justify-between mb-6">
-                <Drawer.Title className="text-lg font-semibold tracking-tight text-red-300">
-                  Retirar de {guardadito.name}
-                </Drawer.Title>
-                <Drawer.Close className="text-[var(--color-on-dim)] hover:text-[var(--color-on-surface)]">
-                  <TranslateIcon iconKey="plus" size={20} className="rotate-45" />
-                </Drawer.Close>
-              </div>
-
-              <div className="bg-red-950/20 border border-red-900/30 p-3 rounded-lg text-xs text-red-200 leading-relaxed mb-4">
-                ⚠️ <strong>Advertencia:</strong> Retirar dinero restará saldo de tus ahorros y lo devolverá a tu saldo general disponible.
-              </div>
-
-              {withdrawError && (
-                <div className="mb-4 p-3 rounded-xl bg-red-950/30 border border-red-500/30 text-red-200 text-xs flex items-start gap-2 animate-in fade-in duration-200">
-                  <TranslateIcon iconKey="emergency" size={14} className="shrink-0 mt-0.5 text-red-400" />
-                  <div className="flex-1">
-                    <p className="font-semibold text-red-300">Error</p>
-                    <p className="opacity-90">{withdrawError}</p>
-                  </div>
-                  <button type="button" onClick={() => setWithdrawError(null)} className="opacity-65 hover:opacity-100 transition-opacity">
-                    <TranslateIcon iconKey="plus" size={12} className="rotate-45" />
-                  </button>
-                </div>
-              )}
-
-              <form onSubmit={handleWithdrawSubmit} className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <div className="flex justify-between items-center">
-                    <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
-                      Cantidad a retirar ($)
-                    </label>
-                    <span className="text-[10px] text-[var(--color-on-dim)] font-semibold">
-                      Disponible: ${guardadito.current.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                  <input
-                    type="number"
-                    step="0.01"
-                    required
-                    value={withdrawAmount}
-                    onChange={(e) => {
-                      setWithdrawAmount(e.target.value);
-                      setWithdrawError(null);
-                    }}
-                    placeholder="0.00"
-                    disabled={isPending}
-                    className="h-11 w-full rounded-lg bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-red-500/50 transition-all"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="h-11 w-full mt-2 rounded-xl bg-red-900 text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50 hover:bg-red-800"
-                >
-                  Confirmar Retiro
-                </button>
-              </form>
+            <button type="button" onClick={() => setDepositError(null)} className="opacity-65 hover:opacity-100 transition-opacity">
+              <TranslateIcon iconKey="plus" size={12} className="rotate-45" />
+            </button>
+          </div>
+        )}
+        <form onSubmit={handleDepositSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <div className="flex justify-between items-center">
+              <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+                Cantidad a ahorrar ($)
+              </label>
+              <span className="text-[10px] text-[var(--color-on-dim)] font-semibold">
+                Disponible: ${walletBalance.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+              </span>
             </div>
-          </Drawer.Content>
-        </Drawer.Portal>
-      </Drawer.Root>
+            <input
+              type="number"
+              step="0.01"
+              required
+              value={depositAmount}
+              onChange={(e) => { setDepositAmount(e.target.value); setDepositError(null); }}
+              placeholder="0.00"
+              disabled={isPending}
+              className="h-11 w-full rounded-lg bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={isPending}
+            className="h-11 w-full mt-2 rounded-xl bg-[var(--color-primary-ctr)] text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50"
+          >
+            Confirmar Depósito
+          </button>
+        </form>
+      </SlidePanel>
 
-      <Drawer.Root open={isDeleteOpen} onOpenChange={setIsDeleteOpen} direction="right">
-        <Drawer.Portal>
-          <Drawer.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 animate-in fade-in duration-200" />
-          <Drawer.Content className="
-            fixed z-50 text-[var(--color-on-surface)] bg-[var(--color-surface-3)] focus:outline-none
-            bottom-0 left-0 right-0 max-h-[85vh] rounded-t-2xl border-t border-white/5 flex flex-col
-            sm:top-0 sm:right-0 sm:left-auto sm:bottom-0 sm:w-[400px] sm:max-h-full sm:rounded-l-2xl sm:rounded-tr-none sm:border-l sm:border-t-0
-          ">
-            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-white/10 my-4 sm:hidden" />
-            <div className="flex-1 overflow-y-auto px-6 pb-8 sm:py-8 w-full">
-              <div className="flex items-center justify-between mb-6">
-                <Drawer.Title className="text-lg font-semibold tracking-tight text-red-400">
-                  Eliminar {guardadito.name}
-                </Drawer.Title>
-                <Drawer.Close className="text-[var(--color-on-dim)] hover:text-[var(--color-on-surface)]">
-                  <TranslateIcon iconKey="plus" size={20} className="rotate-45" />
-                </Drawer.Close>
-              </div>
-
-              <div className="bg-red-950/20 border border-red-900/30 p-4 rounded-lg text-xs text-red-200 leading-relaxed mb-6 flex flex-col gap-2">
-                <span className="font-bold text-red-300">⚠️ ¡Atención! Esta acción no se puede deshacer.</span>
-                <span>Se eliminará de forma permanente el guardadito y el saldo ahorrado se devolverá a tu saldo general.</span>
-              </div>
-
-              <form onSubmit={handleDeleteSubmit} className="flex flex-col gap-4">
-                <div className="flex flex-col gap-2">
-                  <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
-                    Para confirmar, escribe <span className="text-white select-all font-mono">eliminar {guardadito.name}</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={confirmDeleteText}
-                    onChange={(e) => setConfirmDeleteText(e.target.value)}
-                    placeholder={`eliminar ${guardadito.name}`}
-                    disabled={isPending}
-                    className="h-11 w-full rounded-lg bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-red-500/50 transition-all font-mono"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={isPending || confirmDeleteText !== `eliminar ${guardadito.name}`}
-                  className="h-11 w-full mt-2 rounded-xl bg-red-700 hover:bg-red-600 disabled:bg-red-950/40 text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Eliminar Definitivamente
-                </button>
-              </form>
+      {/* Withdraw Modal */}
+      <SlidePanel
+        open={isWithdrawOpen}
+        onClose={() => { setWithdrawError(null); setIsWithdrawOpen(false); }}
+        title={`Retirar de ${guardadito.name}`}
+        titleClassName="text-red-300"
+      >
+        <div className="bg-red-950/20 border border-red-900/30 p-3 rounded-lg text-xs text-red-200 leading-relaxed">
+          ⚠️ <strong>Advertencia:</strong> Retirar dinero restará saldo de tus ahorros y lo devolverá a tu saldo general disponible.
+        </div>
+        {withdrawError && (
+          <div className="p-3 rounded-xl bg-red-950/30 border border-red-500/30 text-red-200 text-xs flex items-start gap-2 animate-in fade-in duration-200">
+            <TranslateIcon iconKey="emergency" size={14} className="shrink-0 mt-0.5 text-red-400" />
+            <div className="flex-1">
+              <p className="font-semibold text-red-300">Error</p>
+              <p className="opacity-90">{withdrawError}</p>
             </div>
-          </Drawer.Content>
-        </Drawer.Portal>
-      </Drawer.Root>
+            <button type="button" onClick={() => setWithdrawError(null)} className="opacity-65 hover:opacity-100 transition-opacity">
+              <TranslateIcon iconKey="plus" size={12} className="rotate-45" />
+            </button>
+          </div>
+        )}
+        <form onSubmit={handleWithdrawSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <div className="flex justify-between items-center">
+              <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+                Cantidad a retirar ($)
+              </label>
+              <span className="text-[10px] text-[var(--color-on-dim)] font-semibold">
+                Disponible: ${guardadito.current.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+              </span>
+            </div>
+            <input
+              type="number"
+              step="0.01"
+              required
+              value={withdrawAmount}
+              onChange={(e) => { setWithdrawAmount(e.target.value); setWithdrawError(null); }}
+              placeholder="0.00"
+              disabled={isPending}
+              className="h-11 w-full rounded-lg bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-red-500/50 transition-all"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={isPending}
+            className="h-11 w-full mt-2 rounded-xl bg-red-900 text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50 hover:bg-red-800"
+          >
+            Confirmar Retiro
+          </button>
+        </form>
+      </SlidePanel>
 
-      {/* Transaction Modal (for Sidebar FAB) */}
-      <TransactionModal
-        isOpen={txModalState.isOpen}
-        defaultType={txModalState.type}
-        guardaditos={guardaditos}
-        customCategories={customCategories}
-        onClose={closeTxModal}
-        onSubmitAction={createTransaction}
-        walletBalance={walletBalance}
-      />
-    </div>
+      {/* Delete Modal */}
+      <SlidePanel
+        open={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        title={`Eliminar ${guardadito.name}`}
+        titleClassName="text-red-400"
+      >
+        <div className="bg-red-950/20 border border-red-900/30 p-4 rounded-lg text-xs text-red-200 leading-relaxed flex flex-col gap-2">
+          <span className="font-bold text-red-300">⚠️ ¡Atención! Esta acción no se puede deshacer.</span>
+          <span>Se eliminará de forma permanente el guardadito y el saldo ahorrado se devolverá a tu saldo general.</span>
+        </div>
+        <form onSubmit={handleDeleteSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <label className="font-[var(--font-data)] text-[10px] font-bold tracking-[0.1em] uppercase text-[var(--color-on-muted)]">
+              Para confirmar, escribe <span className="text-white select-all font-mono">eliminar {guardadito.name}</span>
+            </label>
+            <input
+              type="text"
+              required
+              value={confirmDeleteText}
+              onChange={(e) => setConfirmDeleteText(e.target.value)}
+              placeholder={`eliminar ${guardadito.name}`}
+              disabled={isPending}
+              className="h-11 w-full rounded-lg bg-[var(--color-surface-2)] border border-white/5 px-4 text-sm text-[var(--color-on-surface)] focus:outline-none focus:border-red-500/50 transition-all font-mono"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={isPending || confirmDeleteText !== `eliminar ${guardadito.name}`}
+            className="h-11 w-full mt-2 rounded-xl bg-red-700 hover:bg-red-600 disabled:bg-red-950/40 text-white font-[var(--font-data)] text-[12px] font-bold tracking-[0.15em] uppercase transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Eliminar Definitivamente
+          </button>
+        </form>
+      </SlidePanel>
+    </>
   );
 }
