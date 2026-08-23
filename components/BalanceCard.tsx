@@ -6,7 +6,7 @@ import TranslateIcon from "./translateIcon";
 
 type BalanceCardProps = {
   totalBalance: string;
-  changePercent: string;
+  changePercent?: string;
   isPositive: boolean;
 };
 
