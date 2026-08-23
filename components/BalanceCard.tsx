@@ -46,25 +46,7 @@ export default function BalanceCard({
         {totalBalance}
       </h1>
 
-      <div
-        className={`
-          inline-flex items-center gap-1
-          z-10
-          px-3 py-1 rounded-full
-          font-[var(--font-data)] text-[13px] font-semibold tracking-wide
-          ${isPositive
-            ? "bg-primary/10 text-primary"
-            : "bg-[var(--color-error)]/10 text-error"
-          }
-        `}
-      >
-        <TranslateIcon
-          iconKey={isPositive ? "arrowUpRight" : "arrowDownRight"}
-          size={14}
-          className="text-current"
-        />
-        <span>{changePercent}</span>
-      </div>
+      
     </section>
   );
 }

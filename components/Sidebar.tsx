@@ -33,6 +33,7 @@ export default function Sidebar({ onFabClick }: SidebarProps) {
         bg-surface-1
         border-r border-border
         p-6 sticky top-0
+        z-50
       "
     >
       <div className="mb-10 px-3 py-2">

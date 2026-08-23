@@ -29,6 +29,7 @@ export default function GuardaditoCard({ guardadito }: GuardaditoCardProps) {
   const progress = guardadito.target && guardadito.target > 0
     ? Math.min((guardadito.current / guardadito.target) * 100, 100)
     : null;
+    
 
 
   return (
@@ -62,20 +63,25 @@ export default function GuardaditoCard({ guardadito }: GuardaditoCardProps) {
             />  
         )}
 
+        <div className="absolute -top-5 -right-5 bg-surface-1 w-5/8 min-h-5/8 blur-lg opacity-70"/>
         <div
           aria-hidden="true"
           style={{ color: theme.iconColor }}
-          className="absolute top-4 right-4 opacity-85 transition-transform duration-200 z-20"
+          className="absolute top-4 right-4 opacity-85 transition-transform duration-200 z-20 "
         >
-          <TranslateIcon iconKey={guardadito.icon} size={24} className="text-current" />
+          <TranslateIcon iconKey={guardadito.icon} size={24} className="text-on-dim " />
         </div>
 
         <div className="relative z-20 flex flex-col gap-1 mt-6">
           <p className="font-[var(--font-data)] text-[11px] font-semibold tracking-[0.12em] uppercase text-on-muted">
             {guardadito.name}
           </p>
-          <p className="font-[var(--font-data)] text-[22px] font-bold tracking-tight leading-tight text-on-surface">
+          <p className="font-[var(--font-data)] text-[22px] font-bold tracking-tight leading-tight text-on-surface flex items-end">
             {guardadito.formattedAmount}
+            {guardadito.target?(
+
+              <span className="text-sm opacity-70">{`/${guardadito.target}`} </span>
+            ):null}
           </p>
           {progress !== null ? (
             <div
@@ -92,7 +98,7 @@ export default function GuardaditoCard({ guardadito }: GuardaditoCardProps) {
               />
             </div>
           ) : (
-            <div className="mt-2 w-full h-[3px] bg-black/5 dark:bg-white/5 rounded-full" aria-hidden="true" />
+            null
           )}
         </div>
         <div className="absolute w-full h-20 bg-surface-1 left-0 -bottom-4 blur-md scale-200 opacity-80 z-0">

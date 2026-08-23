@@ -10,6 +10,7 @@ import { createTransaction } from "@/app/actions";
 import { useBreadcrumbs } from "@/lib/BreadcrumbContext";
 
 import type { CustomCategory } from "./DashboardView";
+import Image from "next/image";
 
 type GuardaditosDetailViewProps = {
   guardadito: {
@@ -331,29 +332,38 @@ export default function GuardaditosDetailView({
 
   return (
     <>
-      <div className="w-full max-w-6xl mx-auto px-6 py-6 pb-20 flex flex-col gap-8">
+    
+      <div className="w-full max-w-6xl mx-auto px-6 py-6 pb-20 flex flex-col gap-8"
+         style={{
+                    backgroundImage: `url(${coverUrl})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: coverPosition,
+                    
+                  }}
+      >
+        <div className="fixed inset-0 bg-black/80 z-0"></div>
+
           {/* Header Card / Progress — full width always */}
           <div
-            style={{ background: theme.gradient, boxShadow: `0 0 30px ${theme.glowColor}` }}
-            className="pinstripe relative overflow-hidden rounded-2xl p-6 border border-border flex flex-col gap-6"
+            className="pinstripe relative overflow-hidden  p-6 border border-border flex flex-col gap-6 z-10 rounded-2xl"
           >
             {/* Background cover image */}
             {coverUrl && (
               <>
                 <div
                   aria-hidden="true"
-                  className="absolute inset-0 z-0 transition-opacity duration-500"
+                  className="absolute inset-0 z-0 transition-opacity duration-500 blur-lg saturate-500 rounded-2xl"
                   style={{
                     backgroundImage: `url(${coverUrl})`,
                     backgroundSize: "cover",
                     backgroundPosition: coverPosition,
-                    opacity: coverOpacity,
+                    
                   }}
                 />
                 {/* Dark gradient overlay so text stays readable in all light/dark conditions */}
                 <div
                   aria-hidden="true"
-                  className="absolute inset-0 z-0 bg-gradient-to-t from-black/60 via-black/35 to-black/10 dark:from-black/75 dark:via-black/45 dark:to-black/20"
+                  className="absolute inset-0 z-0 bg-gradient-to-t from-black/60 via-black/35 to-black/10 dark:from-black/75 dark:via-black/45 dark:to-black/20 rounded-b-2xl"
                 />
               </>
             )}
@@ -395,7 +405,7 @@ export default function GuardaditosDetailView({
           </div>
 
           {/* Desktop two-column grid / Mobile single column */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start z-10">
 
             {/* LEFT COLUMN: Chart + Transactions */}
             <div className="lg:col-span-2 flex flex-col gap-8">

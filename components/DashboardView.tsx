@@ -76,7 +76,7 @@ export default function DashboardView({
           <div className="lg:col-span-2 flex flex-col gap-8 w-full">
             <BalanceCard
               totalBalance={portfolio.balance}
-              changePercent={portfolio.changePercent}
+              // changePercent={portfolio.changePercent}
               isPositive={portfolio.isPositive}
             />
             <ActionButtons
