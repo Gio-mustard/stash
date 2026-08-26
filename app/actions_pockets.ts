@@ -40,51 +40,17 @@ export async function createPocket(formData: FormData) {
     throw new Error("Unauthenticated");
   }
 
-  // Get next sort order
-  const { data: existing } = await supabase
-    .from("pockets")
-    .select("sort_order")
-    .eq("user_id", user.id)
-    .order("sort_order", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const { error: rpcError } = await supabase.rpc("create_pocket_atomic", {
+    p_user_id: user.id,
+    p_name: name,
+    p_subtitle: subtitle,
+    p_balance: balance,
+    p_design_preset: designPreset,
+    p_custom_design: customDesign,
+  });
 
-  const nextSortOrder = existing ? existing.sort_order + 1 : 0;
-
-  const { data: newPocket, error: insertError } = await supabase
-    .from("pockets")
-    .insert({
-      user_id: user.id,
-      name,
-      subtitle,
-      balance,
-      design_preset: designPreset,
-      custom_design: customDesign,
-      sort_order: nextSortOrder,
-    })
-    .select("id")
-    .single();
-
-  if (insertError || !newPocket) {
-    throw new Error(insertError?.message || "Error al crear la tarjeta");
-  }
-
-  // If initial balance > 0, log a transaction
-  if (balance > 0) {
-    const { error: txError } = await supabase.from("transactions").insert({
-      user_id: user.id,
-      icon: "wallet",
-      title: `Saldo inicial: ${name}`,
-      subtitle: `Pocket Deposit • Today`,
-      amount: balance,
-      is_positive: true,
-      status: "COMPLETED",
-      pocket_id: newPocket.id,
-    });
-
-    if (txError) {
-      throw new Error("Error al registrar transacción de saldo inicial: " + txError.message);
-    }
+  if (rpcError) {
+    throw new Error(rpcError.message);
   }
 
   revalidatePath("/");
@@ -144,61 +110,14 @@ export async function deletePocket(id: string, transferToWallet: boolean) {
     throw new Error("Unauthenticated");
   }
 
-  const { data: pocket } = await supabase
-    .from("pockets")
-    .select("name, balance")
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .single();
+  const { error: rpcError } = await supabase.rpc("delete_pocket_atomic", {
+    p_user_id: user.id,
+    p_pocket_id: id,
+    p_transfer_to_wallet: transferToWallet,
+  });
 
-  if (!pocket) {
-    throw new Error("Pocket no encontrado");
-  }
-
-  const pocketBalance = parseFloat(pocket.balance.toString());
-
-  if (transferToWallet && pocketBalance > 0) {
-    // Fetch user portfolio
-    const { data: portfolio } = await supabase
-      .from("portfolios")
-      .select("balance")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    const currentBalance = portfolio ? parseFloat(portfolio.balance.toString()) : 0;
-    const newBalance = currentBalance + pocketBalance;
-
-    if (portfolio) {
-      await supabase
-        .from("portfolios")
-        .update({ balance: newBalance })
-        .eq("user_id", user.id);
-    } else {
-      await supabase
-        .from("portfolios")
-        .insert({ user_id: user.id, balance: newBalance, change_percent: 0.00, is_positive: true });
-    }
-
-    // Log the transfer transaction
-    await supabase.from("transactions").insert({
-      user_id: user.id,
-      icon: "wallet",
-      title: `Cierre: ${pocket.name}`,
-      subtitle: `Transfer to Wallet • Today`,
-      amount: pocketBalance,
-      is_positive: true,
-      status: "COMPLETED",
-    });
-  }
-
-  const { error } = await supabase
-    .from("pockets")
-    .delete()
-    .eq("id", id)
-    .eq("user_id", user.id);
-
-  if (error) {
-    throw new Error(error.message);
+  if (rpcError) {
+    throw new Error(rpcError.message);
   }
 
   revalidatePath("/");
@@ -229,7 +148,7 @@ export async function pocketDeposit(
 
   const { data: pocket } = await supabase
     .from("pockets")
-    .select("name, balance")
+    .select("name")
     .eq("id", id)
     .eq("user_id", user.id)
     .single();
@@ -238,38 +157,23 @@ export async function pocketDeposit(
     throw new Error("Pocket no encontrado");
   }
 
-  const currentBalance = parseFloat(pocket.balance.toString());
-  const newBalance = currentBalance + amount;
-
-  const { error: updateError } = await supabase
-    .from("pockets")
-    .update({ balance: newBalance })
-    .eq("id", id)
-    .eq("user_id", user.id);
-
-  if (updateError) {
-    throw new Error(updateError.message);
-  }
-
   const categoryLabel = category.charAt(0).toUpperCase() + category.slice(1);
   const title = note.trim() || `Ingreso: ${pocket.name}`;
   const txDate = dateStr ? new Date(dateStr).toISOString() : new Date().toISOString();
   const subtitle = `${categoryLabel} • ${new Date(txDate).toLocaleDateString("es-MX", { month: "short", day: "numeric" })}`;
 
-  const { error: txError } = await supabase.from("transactions").insert({
-    user_id: user.id,
-    icon: category,
-    title,
-    subtitle,
-    amount,
-    is_positive: true,
-    status: "COMPLETED",
-    pocket_id: id,
-    created_at: txDate,
+  const { error: rpcError } = await supabase.rpc("pocket_deposit_atomic", {
+    p_user_id: user.id,
+    p_pocket_id: id,
+    p_amount: amount,
+    p_icon: category,
+    p_title: title,
+    p_subtitle: subtitle,
+    p_created_at: txDate,
   });
 
-  if (txError) {
-    throw new Error(txError.message);
+  if (rpcError) {
+    throw new Error(rpcError.message);
   }
 
   revalidatePath("/");
@@ -300,7 +204,7 @@ export async function pocketExpense(
 
   const { data: pocket } = await supabase
     .from("pockets")
-    .select("name, balance")
+    .select("name")
     .eq("id", id)
     .eq("user_id", user.id)
     .single();
@@ -309,42 +213,23 @@ export async function pocketExpense(
     throw new Error("Pocket no encontrado");
   }
 
-  const currentBalance = parseFloat(pocket.balance.toString());
-  if (currentBalance < amount) {
-    throw new Error("Fondos insuficientes en esta tarjeta");
-  }
-
-  const newBalance = currentBalance - amount;
-
-  const { error: updateError } = await supabase
-    .from("pockets")
-    .update({ balance: newBalance })
-    .eq("id", id)
-    .eq("user_id", user.id);
-
-  if (updateError) {
-    throw new Error(updateError.message);
-  }
-
   const categoryLabel = category.charAt(0).toUpperCase() + category.slice(1);
   const title = note.trim() || `Gasto: ${pocket.name}`;
   const txDate = dateStr ? new Date(dateStr).toISOString() : new Date().toISOString();
   const subtitle = `${categoryLabel} • ${new Date(txDate).toLocaleDateString("es-MX", { month: "short", day: "numeric" })}`;
 
-  const { error: txError } = await supabase.from("transactions").insert({
-    user_id: user.id,
-    icon: category,
-    title,
-    subtitle,
-    amount,
-    is_positive: false,
-    status: "COMPLETED",
-    pocket_id: id,
-    created_at: txDate,
+  const { error: rpcError } = await supabase.rpc("pocket_expense_atomic", {
+    p_user_id: user.id,
+    p_pocket_id: id,
+    p_amount: amount,
+    p_icon: category,
+    p_title: title,
+    p_subtitle: subtitle,
+    p_created_at: txDate,
   });
 
-  if (txError) {
-    throw new Error(txError.message);
+  if (rpcError) {
+    throw new Error(rpcError.message);
   }
 
   revalidatePath("/");
@@ -369,7 +254,7 @@ export async function transferPocketToWallet(pocketId: string, amount: number) {
 
   const { data: pocket } = await supabase
     .from("pockets")
-    .select("name, balance")
+    .select("name")
     .eq("id", pocketId)
     .eq("user_id", user.id)
     .single();
@@ -378,57 +263,16 @@ export async function transferPocketToWallet(pocketId: string, amount: number) {
     throw new Error("Pocket no encontrado");
   }
 
-  const currentPocketBalance = parseFloat(pocket.balance.toString());
-  if (currentPocketBalance < amount) {
-    throw new Error("Fondos insuficientes en esta tarjeta");
-  }
-
-  // Get portfolio
-  const { data: portfolio } = await supabase
-    .from("portfolios")
-    .select("balance")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  const currentPortBalance = portfolio ? parseFloat(portfolio.balance.toString()) : 0;
-
-  // Deduct from pocket
-  const { error: updatePocketError } = await supabase
-    .from("pockets")
-    .update({ balance: currentPocketBalance - amount })
-    .eq("id", pocketId)
-    .eq("user_id", user.id);
-
-  if (updatePocketError) {
-    throw new Error(updatePocketError.message);
-  }
-
-  // Add to portfolio
-  if (portfolio) {
-    await supabase
-      .from("portfolios")
-      .update({ balance: currentPortBalance + amount })
-      .eq("user_id", user.id);
-  } else {
-    await supabase
-      .from("portfolios")
-      .insert({ user_id: user.id, balance: amount, change_percent: 0.00, is_positive: true });
-  }
-
-  // Log transfer transaction: shows as a positive entry in wallet history, but linked to the pocket
-  const { error: txError } = await supabase.from("transactions").insert({
-    user_id: user.id,
-    icon: "wallet",
-    title: `Retiro: ${pocket.name}`,
-    subtitle: `Transfer to Wallet • Today`,
-    amount,
-    is_positive: true,
-    status: "COMPLETED",
-    pocket_id: pocketId,
+  const { error: rpcError } = await supabase.rpc("transfer_pocket_to_wallet_atomic", {
+    p_user_id: user.id,
+    p_pocket_id: pocketId,
+    p_amount: amount,
+    p_title: `Retiro: ${pocket.name}`,
+    p_subtitle: `Transfer to Wallet • Today`,
   });
 
-  if (txError) {
-    throw new Error(txError.message);
+  if (rpcError) {
+    throw new Error(rpcError.message);
   }
 
   revalidatePath("/");
@@ -457,7 +301,7 @@ export async function transferPocketToGuardadito(
 
   const { data: pocket } = await supabase
     .from("pockets")
-    .select("name, balance")
+    .select("name")
     .eq("id", pocketId)
     .eq("user_id", user.id)
     .single();
@@ -468,7 +312,7 @@ export async function transferPocketToGuardadito(
 
   const { data: guardadito } = await supabase
     .from("guardaditos")
-    .select("name, icon, current")
+    .select("name, icon")
     .eq("id", guardaditoId)
     .eq("user_id", user.id)
     .single();
@@ -477,50 +321,19 @@ export async function transferPocketToGuardadito(
     throw new Error("Guardadito no encontrado");
   }
 
-  const currentPocketBalance = parseFloat(pocket.balance.toString());
-  if (currentPocketBalance < amount) {
-    throw new Error("Fondos insuficientes en la tarjeta");
-  }
-
-  const currentSavings = parseFloat(guardadito.current.toString());
-
-  // Deduct from pocket
-  const { error: updatePocketError } = await supabase
-    .from("pockets")
-    .update({ balance: currentPocketBalance - amount })
-    .eq("id", pocketId)
-    .eq("user_id", user.id);
-
-  if (updatePocketError) {
-    throw new Error(updatePocketError.message);
-  }
-
-  // Add to guardadito
-  const { error: updateGuardaditoError } = await supabase
-    .from("guardaditos")
-    .update({ current: currentSavings + amount })
-    .eq("id", guardaditoId)
-    .eq("user_id", user.id);
-
-  if (updateGuardaditoError) {
-    throw new Error(updateGuardaditoError.message);
-  }
-
   // Log transfer transaction: shows as an expense since it's going into a savings target (similar to wallet -> guardadito)
-  const { error: txError } = await supabase.from("transactions").insert({
-    user_id: user.id,
-    icon: guardadito.icon || "piggybank",
-    title: `Ahorro: ${guardadito.name}`,
-    subtitle: `From Pocket: ${pocket.name}`,
-    amount,
-    is_positive: false,
-    status: "COMPLETED",
-    pocket_id: pocketId,
-    guardadito_id: guardaditoId,
+  const { error: rpcError } = await supabase.rpc("transfer_pocket_to_guardadito_atomic", {
+    p_user_id: user.id,
+    p_pocket_id: pocketId,
+    p_guardadito_id: guardaditoId,
+    p_amount: amount,
+    p_icon: guardadito.icon || "piggybank",
+    p_title: `Ahorro: ${guardadito.name}`,
+    p_subtitle: `From Pocket: ${pocket.name}`,
   });
 
-  if (txError) {
-    throw new Error(txError.message);
+  if (rpcError) {
+    throw new Error(rpcError.message);
   }
 
   revalidatePath("/");

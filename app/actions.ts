@@ -54,129 +54,21 @@ export async function createTransaction(formData: FormData) {
     }
   }
 
-  // Validation: cannot spend more than we have in the specific context
-  if (!isPositive) {
-    if (pocketId) {
-      const { data: pocket } = await supabase
-        .from("pockets")
-        .select("balance")
-        .eq("id", pocketId)
-        .eq("user_id", user.id)
-        .single();
-      if (!pocket || Number(pocket.balance) < amount) {
-        throw new Error("Fondos insuficientes en la tarjeta");
-      }
-    } else if (guardaditoId) {
-      const { data: guardadito } = await supabase
-        .from("guardaditos")
-        .select("current")
-        .eq("id", guardaditoId)
-        .eq("user_id", user.id)
-        .single();
-      if (!guardadito || Number(guardadito.current) < amount) {
-        throw new Error("Fondos insuficientes en el guardadito");
-      }
-    } else {
-      const { data: portfolio } = await supabase
-        .from("portfolios")
-        .select("balance")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      const currentBalance = portfolio ? Number(portfolio.balance) : 0;
-      if (currentBalance < amount) {
-        throw new Error("Fondos insuficientes en tu billetera");
-      }
-    }
-  }
-
-  const { error: txError } = await supabase.from("transactions").insert({
-    user_id: user.id,
-    icon: category,
-    title,
-    subtitle,
-    amount,
-    is_positive: isPositive,
-    status: "COMPLETED",
-    guardadito_id: guardaditoId || null,
-    pocket_id: pocketId || null,
-    receipt_url: receiptUrl,
-    created_at: txDate,
+  const { error: rpcError } = await supabase.rpc("create_transaction_atomic", {
+    p_user_id: user.id,
+    p_amount: amount,
+    p_is_positive: isPositive,
+    p_icon: category,
+    p_title: title,
+    p_subtitle: subtitle,
+    p_pocket_id: pocketId || null,
+    p_guardadito_id: guardaditoId || null,
+    p_receipt_url: receiptUrl,
+    p_created_at: txDate,
   });
 
-  if (txError) {
-    throw new Error(txError.message);
-  }
-
-  if (pocketId) {
-    const { data: pocket, error: fetchPocketError } = await supabase
-      .from("pockets")
-      .select("balance")
-      .eq("id", pocketId)
-      .single();
-
-    if (!fetchPocketError && pocket) {
-      const currentPocketBalance = parseFloat(pocket.balance.toString());
-      const newPocketBalance = isPositive ? currentPocketBalance + amount : Math.max(0, currentPocketBalance - amount);
-      await supabase
-        .from("pockets")
-        .update({ balance: newPocketBalance })
-        .eq("id", pocketId);
-    }
-  } else if (guardaditoId) {
-    const { data: guardadito, error: fetchGuardaditoError } = await supabase
-      .from("guardaditos")
-      .select("current")
-      .eq("id", guardaditoId)
-      .single();
-
-    if (!fetchGuardaditoError && guardadito) {
-      const currentSavings = parseFloat(guardadito.current.toString());
-      // If isPositive is true (Income): increase guardadito (money added to savings goal)
-      // If isPositive is false (Expense): decrease guardadito (money spent from savings goal)
-      const newSavings = isPositive ? currentSavings + amount : Math.max(0, currentSavings - amount);
-      await supabase
-        .from("guardaditos")
-        .update({ current: newSavings })
-        .eq("id", guardaditoId);
-    }
-  } else {
-    let { data: portfolio, error: fetchPortError } = await supabase
-      .from("portfolios")
-      .select("balance")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if (fetchPortError) {
-      throw new Error(fetchPortError.message);
-    }
-
-    let currentBalance = 0;
-    let hasPortfolio = false;
-    if (portfolio) {
-      currentBalance = parseFloat(portfolio.balance.toString());
-      hasPortfolio = true;
-    }
-
-    const newBalance = isPositive ? currentBalance + amount : currentBalance - amount;
-
-    if (hasPortfolio) {
-      const { error: updatePortError } = await supabase
-        .from("portfolios")
-        .update({ balance: newBalance })
-        .eq("user_id", user.id);
-
-      if (updatePortError) {
-        throw new Error(updatePortError.message);
-      }
-    } else {
-      const { error: insertPortError } = await supabase
-        .from("portfolios")
-        .insert({ user_id: user.id, balance: newBalance, change_percent: 0.00, is_positive: true });
-
-      if (insertPortError) {
-        throw new Error(insertPortError.message);
-      }
-    }
+  if (rpcError) {
+    throw new Error(rpcError.message);
   }
 
   revalidatePath("/");
@@ -246,91 +138,17 @@ export async function quickDepositOrWithdraw(
     throw new Error("Unauthenticated");
   }
 
-  const { data: guardadito, error: fetchGuardaditoError } = await supabase
-    .from("guardaditos")
-    .select("current")
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .single();
-
-  if (fetchGuardaditoError || !guardadito) {
-    throw new Error("Savings goal not found");
-  }
-
-  let { data: portfolio, error: fetchPortError } = await supabase
-    .from("portfolios")
-    .select("balance")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  if (fetchPortError) {
-    throw new Error(fetchPortError.message);
-  }
-
-  const currentSavings = parseFloat(guardadito.current.toString());
-  let currentBalance = 0;
-  let hasPortfolio = false;
-  if (portfolio) {
-    currentBalance = parseFloat(portfolio.balance.toString());
-    hasPortfolio = true;
-  }
-
-  // Validations: prevent negative balances
-  if (isDeposit && currentBalance < amount) {
-    throw new Error("Fondos insuficientes en tu billetera para realizar el depósito");
-  }
-  if (!isDeposit && currentSavings < amount) {
-    throw new Error("No puedes retirar más dinero del que tiene el guardadito");
-  }
-
-  const newSavings = isDeposit ? currentSavings + amount : Math.max(0, currentSavings - amount);
-  const newBalance = isDeposit ? currentBalance - amount : currentBalance + amount;
-
-  const { error: updateGuardaditoError } = await supabase
-    .from("guardaditos")
-    .update({ current: newSavings })
-    .eq("id", id)
-    .eq("user_id", user.id);
-
-  if (updateGuardaditoError) {
-    throw new Error(updateGuardaditoError.message);
-  }
-
-  if (hasPortfolio) {
-    const { error: updatePortError } = await supabase
-      .from("portfolios")
-      .update({ balance: newBalance })
-      .eq("user_id", user.id);
-
-    if (updatePortError) {
-      throw new Error(updatePortError.message);
-    }
-  } else {
-    const { error: insertPortError } = await supabase
-      .from("portfolios")
-      .insert({ user_id: user.id, balance: newBalance, change_percent: 0.00, is_positive: true });
-
-    if (insertPortError) {
-      throw new Error(insertPortError.message);
-    }
-  }
-
-  const title = isDeposit ? `Ahorro: ${name}` : `Retiro: ${name}`;
-  const subtitle = isDeposit ? "Goal Deposit • Today" : "Goal Withdrawal • Today";
-
-  const { error: txError } = await supabase.from("transactions").insert({
-    user_id: user.id,
-    icon: icon,
-    title: title,
-    subtitle: subtitle,
-    amount: amount,
-    is_positive: !isDeposit,
-    status: "COMPLETED",
-    guardadito_id: id,
+  const { error: rpcError } = await supabase.rpc("quick_deposit_withdraw_atomic", {
+    p_user_id: user.id,
+    p_guardadito_id: id,
+    p_amount: amount,
+    p_is_deposit: isDeposit,
+    p_name: name,
+    p_icon: icon,
   });
 
-  if (txError) {
-    throw new Error(txError.message);
+  if (rpcError) {
+    throw new Error(rpcError.message);
   }
 
   revalidatePath("/");

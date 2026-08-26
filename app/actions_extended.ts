@@ -52,50 +52,13 @@ export async function deleteGuardadito(id: string) {
     throw new Error("Unauthenticated");
   }
 
-  // Fetch guardadito's balance before deletion to return it back to user balance?
-  // Let's check how the user wants to handle this. Returning balance back is nice,
-  // but let's simply delete the goal to keep it clean and robust.
-  const { data: goal } = await supabase
-    .from("guardaditos")
-    .select("current")
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .single();
+  const { error: rpcError } = await supabase.rpc("delete_guardadito_atomic", {
+    p_user_id: user.id,
+    p_guardadito_id: id,
+  });
 
-  if (!goal) {
-    throw new Error("Savings goal not found");
-  }
-
-  // Return savings back to portfolio balance
-  const savingsAmt = parseFloat(goal.current.toString());
-  if (savingsAmt > 0) {
-    const { data: portfolio } = await supabase
-      .from("portfolios")
-      .select("balance")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    if (portfolio) {
-      const currentPortVal = parseFloat(portfolio.balance.toString());
-      await supabase
-        .from("portfolios")
-        .update({ balance: currentPortVal + savingsAmt })
-        .eq("user_id", user.id);
-    } else {
-      await supabase
-        .from("portfolios")
-        .insert({ user_id: user.id, balance: savingsAmt, change_percent: 0.00, is_positive: true });
-    }
-  }
-
-  const { error } = await supabase
-    .from("guardaditos")
-    .delete()
-    .eq("id", id)
-    .eq("user_id", user.id);
-
-  if (error) {
-    throw new Error(error.message);
+  if (rpcError) {
+    throw new Error(rpcError.message);
   }
 
   revalidatePath("/");
@@ -167,101 +130,23 @@ export async function createGuardadito(formData: FormData) {
     throw new Error("Unauthenticated");
   }
 
-  // If initialAmount > 0, validate wallet balance
-  let currentBalance = 0;
-  let hasPortfolio = false;
-  if (initialAmount > 0) {
-    const { data: portfolio, error: fetchPortError } = await supabase
-      .from("portfolios")
-      .select("balance")
-      .eq("user_id", user.id)
-      .maybeSingle();
+  const { data: newGuardaditoId, error: rpcError } = await supabase.rpc("create_guardadito_atomic", {
+    p_user_id: user.id,
+    p_name: name,
+    p_icon: icon,
+    p_target: target,
+    p_initial_amount: initialAmount,
+  });
 
-    if (fetchPortError) {
-      throw new Error(fetchPortError.message);
-    }
-
-    if (portfolio) {
-      currentBalance = parseFloat(portfolio.balance.toString());
-      hasPortfolio = true;
-    }
-
-    if (currentBalance < initialAmount) {
-      throw new Error("Fondos insuficientes en tu billetera para el monto inicial");
-    }
-  }
-
-  const { data: existing } = await supabase
-    .from("guardaditos")
-    .select("theme_index")
-    .eq("user_id", user.id)
-    .order("theme_index", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  const nextTheme = existing ? (existing.theme_index + 1) % 3 : 0;
-
-  const { data: newGuardadito, error: insertGError } = await supabase
-    .from("guardaditos")
-    .insert({
-      user_id: user.id,
-      name,
-      icon,
-      current: initialAmount,
-      target,
-      theme_index: nextTheme,
-    })
-    .select("id")
-    .single();
-
-  if (insertGError || !newGuardadito) {
-    throw new Error(insertGError?.message || "Error al crear el guardadito");
-  }
-
-  // If initialAmount > 0, update wallet balance and create transaction log
-  if (initialAmount > 0) {
-    const newBalance = currentBalance - initialAmount;
-    if (hasPortfolio) {
-      const { error: updatePortError } = await supabase
-        .from("portfolios")
-        .update({ balance: newBalance })
-        .eq("user_id", user.id);
-      if (updatePortError) {
-        throw new Error(updatePortError.message);
-      }
-    } else {
-      const { error: insertPortError } = await supabase
-        .from("portfolios")
-        .insert({ user_id: user.id, balance: newBalance, change_percent: 0.00, is_positive: true });
-      if (insertPortError) {
-        throw new Error(insertPortError.message);
-      }
-    }
-
-    const title = `Ahorro: ${name}`;
-    const subtitle = "Goal Deposit • Today";
-
-    const { error: txError } = await supabase.from("transactions").insert({
-      user_id: user.id,
-      icon: icon,
-      title: title,
-      subtitle: subtitle,
-      amount: initialAmount,
-      is_positive: false,
-      status: "COMPLETED",
-      guardadito_id: newGuardadito.id,
-    });
-
-    if (txError) {
-      throw new Error(txError.message);
-    }
+  if (rpcError || !newGuardaditoId) {
+    throw new Error(rpcError?.message || "Error al crear el guardadito");
   }
 
   // Optionally upload cover image
   if (coverFile && coverFile.size > 0) {
     try {
       const fileExt = coverFile.name.split(".").pop() || "jpg";
-      const filePath = `${user.id}/${newGuardadito.id}/cover.${fileExt}`;
+      const filePath = `${user.id}/${newGuardaditoId}/cover.${fileExt}`;
       const fileBuffer = Buffer.from(await coverFile.arrayBuffer());
 
       const { data: uploadData, error: uploadError } = await supabase.storage
@@ -273,7 +158,7 @@ export async function createGuardadito(formData: FormData) {
         await supabase
           .from("guardaditos")
           .update({ cover_url: `${publicUrl}?t=${Date.now()}` })
-          .eq("id", newGuardadito.id)
+          .eq("id", newGuardaditoId)
           .eq("user_id", user.id);
       }
     } catch {
